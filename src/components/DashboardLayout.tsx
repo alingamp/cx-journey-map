@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, LayoutDashboard, BarChart4, LineChart, TrendingUp, PieChart, Users, Settings, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, BarChart4, LineChart, TrendingUp, PieChart, Users, Settings, Search, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Link, useLocation } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,15 +13,16 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const isMobile = useIsMobile();
+  const location = useLocation();
   
   const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', active: true },
-    { icon: BarChart4, label: 'Industry Analysis', active: false },
-    { icon: LineChart, label: 'Trend Analysis', active: false },
-    { icon: TrendingUp, label: 'Performance', active: false },
-    { icon: PieChart, label: 'Competitive Data', active: false },
-    { icon: Users, label: 'Customer Insights', active: false },
-    { icon: Settings, label: 'Settings', active: false },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/', active: location.pathname === '/' },
+    { icon: Building, label: 'Industry Analysis', path: '/industry-analysis', active: location.pathname === '/industry-analysis' },
+    { icon: LineChart, label: 'Trend Analysis', path: '/trend-analysis', active: location.pathname === '/trend-analysis' },
+    { icon: TrendingUp, label: 'Performance', path: '/performance', active: location.pathname === '/performance' },
+    { icon: PieChart, label: 'Competitive Data', path: '/competitive-data', active: location.pathname === '/competitive-data' },
+    { icon: Users, label: 'Customer Insights', path: '/customer-insights', active: location.pathname === '/customer-insights' },
+    { icon: Settings, label: 'Settings', path: '/settings', active: location.pathname === '/settings' },
   ];
 
   // Handle sidebar on mobile
@@ -78,7 +80,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 <TooltipProvider delayDuration={collapsed ? 100 : 800}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button
+                      <Link
+                        to={item.path}
                         className={cn(
                           "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all",
                           item.active 
@@ -91,7 +94,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         {!collapsed && (
                           <span className="font-medium animate-fade-in">{item.label}</span>
                         )}
-                      </button>
+                      </Link>
                     </TooltipTrigger>
                     {collapsed && (
                       <TooltipContent side="right">
