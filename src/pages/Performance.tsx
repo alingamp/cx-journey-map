@@ -73,14 +73,16 @@ const Performance = () => {
     }
   }, [selectedIndustry, selectedOrganization, data.cxIndexData]);
   
-  // Get industry average
-  const industryAverage = data.cxIndexData
-    .filter(item => item.industry === selectedIndustry)
-    .reduce((acc, item) => acc + item.cxIndex, 0) / 
-    data.cxIndexData.filter(item => item.industry === selectedIndustry).length;
+  // Memoized calculation of industry average
+  const industryAverage = React.useMemo(() => {
+    return data.cxIndexData
+      .filter(item => item.industry === selectedIndustry)
+      .reduce((acc, item) => acc + item.cxIndex, 0) / 
+      data.cxIndexData.filter(item => item.industry === selectedIndustry).length;
+  }, [selectedIndustry, data.cxIndexData]);
   
-  // Get organization rank in industry
-  const getOrgRank = () => {
+  // Memoized calculation of organization rank
+  const getOrgRank = React.useCallback(() => {
     if (!orgData) return 'N/A';
     
     const industryOrgs = data.cxIndexData
@@ -89,7 +91,7 @@ const Performance = () => {
     
     const rank = industryOrgs.findIndex(item => item.organization === selectedOrganization) + 1;
     return `${rank} of ${industryOrgs.length}`;
-  };
+  }, [selectedIndustry, selectedOrganization, orgData, data.cxIndexData]);
 
   // Navigate to customer insights for this organization
   const navigateToCustomerInsights = () => {
@@ -214,7 +216,7 @@ const Performance = () => {
               </Card>
             </div>
 
-            <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full max-w-md grid-cols-4">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="competitors">Competitors</TabsTrigger>
@@ -239,30 +241,20 @@ const Performance = () => {
                             cx="50%" 
                             cy="50%" 
                             outerRadius="80%" 
-                            data={data.feedbackDiagnostics
-                              .filter(item => 
-                                item.industry === selectedIndustry && 
-                                item.organization === selectedOrganization
-                              )
-                              .map(item => {
-                                const result: any = {};
-                                data.cxDimensions.forEach(dim => {
-                                  result[dim] = item[dim];
-                                });
-                                return result;
-                              })[0]
-                              ? Object.entries(data.feedbackDiagnostics
-                                .filter(item => 
+                            data={React.useMemo(() => {
+                              const feedbackItem = data.feedbackDiagnostics
+                                .find(item => 
                                   item.industry === selectedIndustry && 
                                   item.organization === selectedOrganization
-                                )[0])
-                                .filter(([key]) => data.cxDimensions.includes(key))
-                                .map(([key, value]) => ({
-                                  dimension: key,
-                                  value
-                                }))
-                              : []
-                            }
+                                );
+                              
+                              if (!feedbackItem) return [];
+                              
+                              return data.cxDimensions.map(dim => ({
+                                dimension: dim,
+                                value: feedbackItem[dim]
+                              }));
+                            }, [selectedIndustry, selectedOrganization, data.feedbackDiagnostics, data.cxDimensions])}
                           >
                             <PolarGrid stroke="#e5e7eb" />
                             <PolarAngleAxis dataKey="dimension" />
@@ -334,17 +326,21 @@ const Performance = () => {
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           layout="vertical"
-                          data={[
-                            {
-                              organization: selectedOrganization,
-                              cxIndex: orgData.cxIndex,
-                              isSelected: true
-                            },
-                            ...competitorData.slice(0, 5).map(comp => ({
-                              ...comp,
-                              isSelected: false
-                            }))
-                          ]}
+                          data={React.useMemo(() => {
+                            if (!orgData) return [];
+                            
+                            return [
+                              {
+                                organization: selectedOrganization,
+                                cxIndex: orgData.cxIndex,
+                                isSelected: true
+                              },
+                              ...competitorData.slice(0, 5).map(comp => ({
+                                ...comp,
+                                isSelected: false
+                              }))
+                            ];
+                          }, [orgData, selectedOrganization, competitorData])}
                           margin={{
                             top: 5, right: 30, left: 80, bottom: 5,
                           }}
@@ -362,12 +358,16 @@ const Performance = () => {
                           />
                           <Bar dataKey="cxIndex" fill="#3b82f6" radius={[0, 4, 4, 0]}>
                             <LabelList dataKey="cxIndex" position="right" formatter={(v: number) => v.toFixed(1)} />
-                            {[orgData, ...competitorData].map((entry, index) => (
-                              <Cell 
-                                key={`cell-${index}`} 
-                                fill={entry.organization === selectedOrganization ? '#10b981' : '#3b82f6'} 
-                              />
-                            ))}
+                            {React.useMemo(() => {
+                              if (!orgData) return [];
+                              
+                              return [orgData, ...competitorData].map((entry, index) => (
+                                <Cell 
+                                  key={`cell-${index}`} 
+                                  fill={entry.organization === selectedOrganization ? '#10b981' : '#3b82f6'} 
+                                />
+                              ));
+                            }, [orgData, competitorData, selectedOrganization])}
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
@@ -388,18 +388,22 @@ const Performance = () => {
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart
                             layout="vertical"
-                            data={[
-                              {
-                                organization: selectedOrganization,
-                                change: parseFloat((orgData.cxIndex - orgData.lastYearIndex).toFixed(1)),
-                                isSelected: true
-                              },
-                              ...competitorData.slice(0, 5).map(comp => ({
-                                organization: comp.organization,
-                                change: parseFloat((comp.cxIndex - comp.lastYearIndex).toFixed(1)),
-                                isSelected: false
-                              }))
-                            ]}
+                            data={React.useMemo(() => {
+                              if (!orgData) return [];
+                              
+                              return [
+                                {
+                                  organization: selectedOrganization,
+                                  change: parseFloat((orgData.cxIndex - orgData.lastYearIndex).toFixed(1)),
+                                  isSelected: true
+                                },
+                                ...competitorData.slice(0, 5).map(comp => ({
+                                  organization: comp.organization,
+                                  change: parseFloat((comp.cxIndex - comp.lastYearIndex).toFixed(1)),
+                                  isSelected: false
+                                }))
+                              ];
+                            }, [orgData, selectedOrganization, competitorData])}
                             margin={{
                               top: 5, right: 30, left: 80, bottom: 5,
                             }}
@@ -421,15 +425,19 @@ const Performance = () => {
                             />
                             <Bar dataKey="change" radius={[0, 4, 4, 0]}>
                               <LabelList dataKey="change" position="right" formatter={(v: number) => `${v > 0 ? '+' : ''}${v}`} />
-                              {[...competitorData, orgData].map((entry) => {
-                                const change = entry.cxIndex - entry.lastYearIndex;
-                                return (
-                                  <Cell 
-                                    key={`cell-${entry.organization}`} 
-                                    fill={change > 0 ? '#10b981' : '#ef4444'} 
-                                  />
-                                );
-                              })}
+                              {React.useMemo(() => {
+                                if (!orgData) return [];
+                                
+                                return [...competitorData, orgData].map((entry) => {
+                                  const change = entry.cxIndex - entry.lastYearIndex;
+                                  return (
+                                    <Cell 
+                                      key={`cell-${entry.organization}`} 
+                                      fill={change > 0 ? '#10b981' : '#ef4444'} 
+                                    />
+                                  );
+                                });
+                              }, [orgData, competitorData])}
                             </Bar>
                           </BarChart>
                         </ResponsiveContainer>
@@ -450,23 +458,27 @@ const Performance = () => {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               layout="vertical"
-                              data={data.cxDimensions.map(dim => {
-                                const orgFeedback = data.feedbackDiagnostics.find(
-                                  f => f.organization === selectedOrganization && f.industry === selectedIndustry
-                                );
+                              data={React.useMemo(() => {
+                                if (competitorData.length === 0) return [];
                                 
-                                const topCompetitorFeedback = data.feedbackDiagnostics.find(
-                                  f => f.organization === competitorData[0].organization && f.industry === selectedIndustry
-                                );
-                                
-                                const orgScore = orgFeedback ? orgFeedback[dim] : 0;
-                                const topScore = topCompetitorFeedback ? topCompetitorFeedback[dim] : 0;
-                                
-                                return {
-                                  dimension: dim,
-                                  gap: parseFloat((orgScore - topScore).toFixed(1))
-                                };
-                              })}
+                                return data.cxDimensions.map(dim => {
+                                  const orgFeedback = data.feedbackDiagnostics.find(
+                                    f => f.organization === selectedOrganization && f.industry === selectedIndustry
+                                  );
+                                  
+                                  const topCompetitorFeedback = data.feedbackDiagnostics.find(
+                                    f => f.organization === competitorData[0].organization && f.industry === selectedIndustry
+                                  );
+                                  
+                                  const orgScore = orgFeedback ? orgFeedback[dim] : 0;
+                                  const topScore = topCompetitorFeedback ? topCompetitorFeedback[dim] : 0;
+                                  
+                                  return {
+                                    dimension: dim,
+                                    gap: parseFloat((orgScore - topScore).toFixed(1))
+                                  };
+                                });
+                              }, [data.cxDimensions, selectedOrganization, selectedIndustry, competitorData, data.feedbackDiagnostics])}
                               margin={{
                                 top: 5, right: 30, left: 80, bottom: 5,
                               }}
@@ -489,17 +501,26 @@ const Performance = () => {
                               />
                               <Bar dataKey="gap" radius={[0, 4, 4, 0]}>
                                 <LabelList dataKey="gap" position="right" formatter={(v: number) => `${v > 0 ? '+' : ''}${v}`} />
-                                {data.cxDimensions.map((dim) => (
-                                  <Cell 
-                                    key={`cell-${dim}`} 
-                                    fill={(data.feedbackDiagnostics.find(
+                                {React.useMemo(() => {
+                                  if (competitorData.length === 0) return [];
+                                  
+                                  return data.cxDimensions.map((dim) => {
+                                    const orgScore = data.feedbackDiagnostics.find(
                                       f => f.organization === selectedOrganization && f.industry === selectedIndustry
-                                    )?.[dim] || 0) > 
-                                    (data.feedbackDiagnostics.find(
+                                    )?.[dim] || 0;
+                                    
+                                    const topScore = data.feedbackDiagnostics.find(
                                       f => f.organization === competitorData[0]?.organization && f.industry === selectedIndustry
-                                    )?.[dim] || 0) ? '#10b981' : '#ef4444'} 
-                                  />
-                                ))}
+                                    )?.[dim] || 0;
+                                    
+                                    return (
+                                      <Cell 
+                                        key={`cell-${dim}`} 
+                                        fill={orgScore > topScore ? '#10b981' : '#ef4444'} 
+                                      />
+                                    );
+                                  });
+                                }, [data.cxDimensions, selectedOrganization, selectedIndustry, competitorData, data.feedbackDiagnostics])}
                               </Bar>
                             </BarChart>
                           </ResponsiveContainer>
