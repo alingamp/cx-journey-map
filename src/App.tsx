@@ -6,10 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import IndustryAnalysis from "./pages/IndustryAnalysis";
-import TrendAnalysis from "./pages/TrendAnalysis";
+import IndustryTrendAnalysis from "./pages/IndustryTrendAnalysis";
 import Performance from "./pages/Performance";
-import CompetitiveData from "./pages/CompetitiveData";
 import CustomerInsights from "./pages/CustomerInsights";
 import Settings from "./pages/Settings";
 
@@ -23,12 +21,13 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/industry-analysis" element={<IndustryAnalysis />} />
-          <Route path="/trend-analysis" element={<TrendAnalysis />} />
+          <Route path="/industry-trend-analysis" element={<IndustryTrendAnalysis />} />
           <Route path="/performance" element={<Performance />} />
-          <Route path="/competitive-data" element={<CompetitiveData />} />
           <Route path="/customer-insights" element={<CustomerInsights />} />
           <Route path="/settings" element={<Settings />} />
+          {/* Legacy routes that redirect to new combined page */}
+          <Route path="/industry-analysis" element={<IndustryTrendAnalysis />} />
+          <Route path="/trend-analysis" element={<IndustryTrendAnalysis />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

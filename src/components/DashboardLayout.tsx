@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, LayoutDashboard, BarChart4, LineChart, TrendingUp, Users, Building } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, LineChart, TrendingUp, Users, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -18,13 +17,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/', active: location.pathname === '/' },
-    { icon: Building, label: 'Industry Analysis', path: '/industry-analysis', active: location.pathname === '/industry-analysis' },
-    { icon: LineChart, label: 'Trend Analysis', path: '/trend-analysis', active: location.pathname === '/trend-analysis' },
+    { icon: Building, label: 'Industry & Trend Analysis', path: '/industry-trend-analysis', active: location.pathname === '/industry-trend-analysis' },
     { icon: TrendingUp, label: 'Performance', path: '/performance', active: location.pathname === '/performance' },
     { icon: Users, label: 'Customer Insights', path: '/customer-insights', active: location.pathname === '/customer-insights' },
   ];
 
-  // Handle sidebar on mobile
   if (isMobile) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
@@ -42,7 +39,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
       <aside 
         className={cn(
           "bg-white border-r transition-all duration-300 ease-in-out flex flex-col",
@@ -120,7 +116,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </div>
       </aside>
       
-      {/* Main content */}
       <div className="flex-1 flex flex-col">
         <header className="h-16 border-b flex items-center justify-between px-6 bg-white">
           <div className="w-full max-w-2xl mx-auto">
