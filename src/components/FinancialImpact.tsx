@@ -135,7 +135,7 @@ const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, org
               <SelectValue placeholder="Select Organization" />
             </SelectTrigger>
             <SelectContent>
-              {localSelectedIndustry && organizations[localSelectedIndustry]?.map((org) => (
+              {localSelectedIndustry && organizations[localSelectedIndustry]?.map((org: string) => (
                 <SelectItem key={org} value={org}>{org}</SelectItem>
               ))}
             </SelectContent>
