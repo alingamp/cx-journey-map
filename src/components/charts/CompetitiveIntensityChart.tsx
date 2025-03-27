@@ -33,6 +33,11 @@ const CompetitiveIntensityChart: React.FC<CompetitiveIntensityChartProps> = ({ d
         <Tooltip
           formatter={(value: number) => [`${value}`, 'Intensity']}
           labelFormatter={(value) => `Year: ${value}`}
+          contentStyle={{
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            border: 'none'
+          }}
         />
         <Legend verticalAlign="top" height={36} />
         <Line
@@ -42,6 +47,15 @@ const CompetitiveIntensityChart: React.FC<CompetitiveIntensityChartProps> = ({ d
           stroke="#3b82f6"
           strokeWidth={2}
           dot={{ fill: '#3b82f6', r: 4 }}
+          activeDot={{ r: 6 }}
+        />
+        <Line
+          type="monotone"
+          name="Experiential Focus"
+          dataKey="experientialFocus"
+          stroke="#10b981"
+          strokeWidth={2}
+          dot={{ fill: '#10b981', r: 4 }}
           activeDot={{ r: 6 }}
         />
       </LineChart>
