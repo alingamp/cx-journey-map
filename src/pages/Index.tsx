@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,7 +69,7 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight animate-fade-in">CX Journey Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight animate-fade-in">OW Customer Experience CX</h1>
         <p className="text-gray-500 mt-1 animate-fade-in" style={{ animationDelay: '100ms' }}>
           Interactive analysis of customer experience metrics and financial impacts
         </p>
@@ -314,3 +315,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
