@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, LayoutDashboard, BarChart4, LineChart, TrendingUp, PieChart, Users, Settings, Building } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, BarChart4, LineChart, TrendingUp, PieChart, Users, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,7 +23,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     { icon: TrendingUp, label: 'Performance', path: '/performance', active: location.pathname === '/performance' },
     { icon: PieChart, label: 'Competitive Data', path: '/competitive-data', active: location.pathname === '/competitive-data' },
     { icon: Users, label: 'Customer Insights', path: '/customer-insights', active: location.pathname === '/customer-insights' },
-    { icon: Settings, label: 'Settings', path: '/settings', active: location.pathname === '/settings' },
   ];
 
   // Handle sidebar on mobile
@@ -33,11 +32,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <header className="h-16 border-b flex items-center justify-between px-4 bg-white">
           <div className="flex items-center">
             <span className="font-semibold text-lg">CX Analytics</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2 rounded-full hover:bg-gray-100">
-              <Settings size={20} />
-            </button>
           </div>
         </header>
         <main className="flex-1 p-4 overflow-auto">
@@ -132,11 +126,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <header className="h-16 border-b flex items-center justify-between px-6 bg-white">
           <div className="w-full max-w-2xl mx-auto">
             <QueryBar />
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2 rounded-full hover:bg-gray-100">
-              <Settings size={20} />
-            </button>
           </div>
         </header>
         <main className="flex-1 p-6 overflow-auto">
