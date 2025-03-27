@@ -149,7 +149,7 @@ const FeedbackDiagnostics: React.FC<FeedbackDiagnosticsProps> = ({ data, industr
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span className="text-xs">Needs Improvement (<65)</span>
+            <span className="text-xs">Needs Improvement (&lt;65)</span>
           </div>
         </div>
       </CardContent>
