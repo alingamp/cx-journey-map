@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -26,9 +27,17 @@ interface FinancialImpactProps {
   organizations: { [key: string]: string[] } | any;
   selectedIndustry?: string;
   defaultOrg?: string;
+  onIndustryChange?: (industry: string) => void;
 }
 
-const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, organizations, selectedIndustry, defaultOrg }) => {
+const FinancialImpact: React.FC<FinancialImpactProps> = ({ 
+  data, 
+  industries, 
+  organizations, 
+  selectedIndustry, 
+  defaultOrg,
+  onIndustryChange 
+}) => {
   const [localSelectedIndustry, setLocalSelectedIndustry] = useState<string>(selectedIndustry || '');
   const [selectedOrg, setSelectedOrg] = useState<string>('');
   const [selectedMetric, setSelectedMetric] = useState<string>('revenue');
@@ -78,6 +87,14 @@ const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, org
     }
   }, [localSelectedIndustry, selectedOrg, selectedMetric, data]);
   
+  const handleIndustryChange = (industry: string) => {
+    setLocalSelectedIndustry(industry);
+    // Call the parent's onIndustryChange if provided
+    if (onIndustryChange) {
+      onIndustryChange(industry);
+    }
+  };
+  
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -119,7 +136,7 @@ const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, org
         </div>
         <div className="flex mt-2 gap-2">
           {!selectedIndustry && industries && (
-            <Select value={localSelectedIndustry} onValueChange={setLocalSelectedIndustry}>
+            <Select value={localSelectedIndustry} onValueChange={handleIndustryChange}>
               <SelectTrigger className="flex-1">
                 <SelectValue placeholder="Select Industry" />
               </SelectTrigger>
