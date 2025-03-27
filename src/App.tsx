@@ -22,7 +22,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/industry-trend-analysis" element={<IndustryTrendAnalysis />} />
-          <Route path="/performance" element={<Performance />} />
+          <Route path="/performance" element={<Performance />} /> {/* Organization Metric route (keeping URL the same) */}
           <Route path="/customer-insights" element={<CustomerInsights />} />
           <Route path="/settings" element={<Settings />} />
           {/* Legacy routes that redirect to new combined page */}

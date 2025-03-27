@@ -18,7 +18,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/', active: location.pathname === '/' },
     { icon: Building, label: 'Industry & Trend Analysis', path: '/industry-trend-analysis', active: location.pathname === '/industry-trend-analysis' },
-    { icon: TrendingUp, label: 'Performance', path: '/performance', active: location.pathname === '/performance' },
+    { icon: TrendingUp, label: 'Organization Metric', path: '/performance', active: location.pathname === '/performance' },
     { icon: Users, label: 'Customer Insights', path: '/customer-insights', active: location.pathname === '/customer-insights' },
   ];
 
