@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -28,21 +29,29 @@ interface FinancialImpactProps {
 }
 
 const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, organizations, selectedIndustry }) => {
+  const [localSelectedIndustry, setLocalSelectedIndustry] = useState<string>(selectedIndustry || '');
   const [selectedOrg, setSelectedOrg] = useState<string>('');
   const [selectedMetric, setSelectedMetric] = useState<string>('revenue');
   const [chartData, setChartData] = useState<any[]>([]);
   
+  // Update local state when prop changes
   useEffect(() => {
-    if (organizations[selectedIndustry] && organizations[selectedIndustry].length > 0) {
-      setSelectedOrg(organizations[selectedIndustry][0]);
+    if (selectedIndustry) {
+      setLocalSelectedIndustry(selectedIndustry);
     }
-  }, [selectedIndustry, organizations]);
+  }, [selectedIndustry]);
+  
+  useEffect(() => {
+    if (organizations[localSelectedIndustry] && organizations[localSelectedIndustry].length > 0) {
+      setSelectedOrg(organizations[localSelectedIndustry][0]);
+    }
+  }, [localSelectedIndustry, organizations]);
   
   useEffect(() => {
     if (!selectedOrg) return;
     
     const orgData = data.find(item => 
-      item.industry === selectedIndustry && 
+      item.industry === localSelectedIndustry && 
       item.organization === selectedOrg
     );
     
@@ -66,7 +75,7 @@ const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, org
       
       setChartData(formattedData);
     }
-  }, [selectedIndustry, selectedOrg, selectedMetric, data]);
+  }, [localSelectedIndustry, selectedOrg, selectedMetric, data]);
   
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -108,23 +117,25 @@ const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, org
           </CardDescription>
         </div>
         <div className="flex mt-2 gap-2">
-          <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="Select Industry" />
-            </SelectTrigger>
-            <SelectContent>
-              {industries?.map((industry) => (
-                <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!selectedIndustry && industries && (
+            <Select value={localSelectedIndustry} onValueChange={setLocalSelectedIndustry}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Select Industry" />
+              </SelectTrigger>
+              <SelectContent>
+                {industries?.map((industry) => (
+                  <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           
-          <Select value={selectedOrg} onValueChange={setSelectedOrg} disabled={!selectedIndustry}>
+          <Select value={selectedOrg} onValueChange={setSelectedOrg} disabled={!localSelectedIndustry}>
             <SelectTrigger className="flex-1">
               <SelectValue placeholder="Select Organization" />
             </SelectTrigger>
             <SelectContent>
-              {selectedIndustry && organizations[selectedIndustry]?.map((org) => (
+              {localSelectedIndustry && organizations[localSelectedIndustry]?.map((org) => (
                 <SelectItem key={org} value={org}>{org}</SelectItem>
               ))}
             </SelectContent>

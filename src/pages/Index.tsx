@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,12 +18,14 @@ const Dashboard = () => {
   const [data, setData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [loading, setLoading] = useState<boolean>(true);
+  const [selectedFinancialIndustry, setSelectedFinancialIndustry] = useState<string>('');
   
   useEffect(() => {
     // Simulate loading data from API
     setTimeout(() => {
       const mockData = getAllData();
       setData(mockData);
+      setSelectedFinancialIndustry(mockData.industries[0]);
       setLoading(false);
     }, 800);
   }, []);
@@ -248,7 +249,8 @@ const Dashboard = () => {
             <FinancialImpact 
               data={data.financialImpact} 
               industries={data.industries} 
-              organizations={data.organizations} 
+              organizations={data.organizations}
+              selectedIndustry={selectedFinancialIndustry} 
             />
           </div>
           
