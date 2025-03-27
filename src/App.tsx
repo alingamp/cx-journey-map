@@ -11,6 +11,7 @@ import TrendAnalysis from "./pages/TrendAnalysis";
 import Performance from "./pages/Performance";
 import CompetitiveData from "./pages/CompetitiveData";
 import CustomerInsights from "./pages/CustomerInsights";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/performance" element={<Performance />} />
           <Route path="/competitive-data" element={<CompetitiveData />} />
           <Route path="/customer-insights" element={<CustomerInsights />} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, LayoutDashboard, BarChart4, LineChart, TrendingUp, PieChart, Users, Settings, Search, Building } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, BarChart4, LineChart, TrendingUp, PieChart, Users, Settings, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Link, useLocation } from 'react-router-dom';
+import QueryBar from '@/components/QueryBar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -34,9 +35,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <span className="font-semibold text-lg">CX Analytics</span>
           </div>
           <div className="flex items-center gap-4">
-            <button className="p-2 rounded-full hover:bg-gray-100">
-              <Search size={20} />
-            </button>
             <button className="p-2 rounded-full hover:bg-gray-100">
               <Settings size={20} />
             </button>
@@ -132,15 +130,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         <header className="h-16 border-b flex items-center justify-between px-6 bg-white">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="pl-9 pr-4 py-2 bg-gray-50 rounded-lg text-sm border-none focus:ring-2 focus:ring-primary/20 focus-visible:outline-none w-64"
-              />
-            </div>
+          <div className="w-full max-w-2xl mx-auto">
+            <QueryBar />
           </div>
           <div className="flex items-center gap-4">
             <button className="p-2 rounded-full hover:bg-gray-100">
