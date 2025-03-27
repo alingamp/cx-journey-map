@@ -314,7 +314,7 @@ export const generateFinancialImpact = () => {
   cxData.forEach(org => {
     const baseRevGrowth = (org.cxIndex - 70) / 10 + randomInRange(-2, 3);
     const baseMarginGrowth = (org.cxIndex - 75) / 20 + randomInRange(-1, 2);
-    const baseRetentionImprovement = (org.cxIndex - 65) / 15 + randomInRange(-0.5, 2);
+    const baseRetentionImprovement = calculateBaseRetention(org.cxIndex) + randomInRange(-0.5, 2);
     
     const scenarios = [
       {
@@ -322,21 +322,21 @@ export const generateFinancialImpact = () => {
         cxImprovement: 0,
         revenuePct: parseFloat(baseRevGrowth.toFixed(1)),
         marginPct: parseFloat(baseMarginGrowth.toFixed(1)),
-        retentionPct: parseFloat(baseRetentionGrowth.toFixed(1))
+        retentionPct: parseFloat(baseRetentionImprovement.toFixed(1))
       },
       {
         name: "Moderate Improvement",
         cxImprovement: 5,
         revenuePct: parseFloat((baseRevGrowth + 2).toFixed(1)),
         marginPct: parseFloat((baseMarginGrowth + 0.8).toFixed(1)),
-        retentionPct: parseFloat((baseRetentionGrowth + 3).toFixed(1))
+        retentionPct: parseFloat((baseRetentionImprovement + 3).toFixed(1))
       },
       {
         name: "Significant Improvement",
         cxImprovement: 10,
         revenuePct: parseFloat((baseRevGrowth + 4.5).toFixed(1)),
         marginPct: parseFloat((baseMarginGrowth + 1.8).toFixed(1)),
-        retentionPct: parseFloat((baseRetentionGrowth + 7).toFixed(1))
+        retentionPct: parseFloat((baseRetentionImprovement + 7).toFixed(1))
       }
     ];
     
@@ -370,6 +370,6 @@ export const getAllData = () => {
 };
 
 // Helper for more accurate correlations
-const baseRetentionGrowth = (cxIndex: number) => {
+const calculateBaseRetention = (cxIndex: number): number => {
   return (cxIndex - 60) / 20;
 };
