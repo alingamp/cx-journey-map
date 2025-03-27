@@ -54,7 +54,7 @@ const CustomerInsights = () => {
   const [stats, setStats] = useState<SurveyStats | null>(null);
   const [selectedSurvey, setSelectedSurvey] = useState<CustomerSurvey | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('');
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('all-industries');
   const [page, setPage] = useState(0);
   const surveysPerPage = 10;
   
@@ -74,7 +74,7 @@ const CustomerInsights = () => {
                          survey.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          survey.organization.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesIndustry = selectedIndustry === '' || survey.industry === selectedIndustry;
+    const matchesIndustry = selectedIndustry === 'all-industries' || survey.industry === selectedIndustry;
     
     return matchesSearch && matchesIndustry;
   });
@@ -292,7 +292,7 @@ const CustomerInsights = () => {
                   <SelectValue placeholder="All Industries" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Industries</SelectItem>
+                  <SelectItem value="all-industries">All Industries</SelectItem>
                   {allData.industries.map(industry => (
                     <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                   ))}
@@ -550,3 +550,4 @@ const CustomerInsights = () => {
 };
 
 export default CustomerInsights;
+
