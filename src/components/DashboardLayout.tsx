@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, LayoutDashboard, LineChart, TrendingUp, Users, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -17,8 +18,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   
   const navItems = [
     { icon: LayoutDashboard, label: 'Market Dashboard', path: '/', active: location.pathname === '/' },
-    { icon: Building, label: 'Industry & Trend Analysis', path: '/industry-trend-analysis', active: location.pathname === '/industry-trend-analysis' },
     { icon: TrendingUp, label: 'Organization Dashboard', path: '/performance', active: location.pathname === '/performance' },
+    { icon: Building, label: 'Industry & Trend Analysis', path: '/industry-trend-analysis', active: location.pathname === '/industry-trend-analysis' },
     { icon: Users, label: 'Customer Insights', path: '/customer-insights', active: location.pathname === '/customer-insights' },
   ];
 
