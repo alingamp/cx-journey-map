@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,6 +17,8 @@ interface CorrelationAnalysisProps {
   data: CorrelationData[];
   industries: string[];
   financialMetrics: string[];
+  organizations?: { [key: string]: string[] };
+  metrics?: string[];
 }
 
 // Custom tooltip component
@@ -39,7 +40,7 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-const CorrelationAnalysis: React.FC<CorrelationAnalysisProps> = ({ data, industries, financialMetrics }) => {
+const CorrelationAnalysis: React.FC<CorrelationAnalysisProps> = ({ data, industries, financialMetrics, organizations, metrics }) => {
   const [selectedIndustry, setSelectedIndustry] = useState<string>('All Industries');
   const [selectedMetric, setSelectedMetric] = useState<string>(financialMetrics[0]);
   const [chartData, setChartData] = useState<any[]>([]);

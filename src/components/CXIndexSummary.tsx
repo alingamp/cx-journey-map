@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,9 +17,10 @@ interface CXIndexData {
 interface CXIndexSummaryProps {
   data: CXIndexData[];
   industries: string[];
+  organizations?: { [key: string]: string[] };
 }
 
-const CXIndexSummary: React.FC<CXIndexSummaryProps> = ({ data, industries }) => {
+const CXIndexSummary: React.FC<CXIndexSummaryProps> = ({ data, industries, organizations }) => {
   const [selectedIndustry, setSelectedIndustry] = useState<string>('All Industries');
   
   // Filter data based on selected industry

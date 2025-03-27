@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,35 +22,31 @@ interface FinancialData {
 
 interface FinancialImpactProps {
   data: FinancialData[];
-  industries: string[];
-  organizations: { [key: string]: string[] };
+  industries?: string[];
+  organizations: { [key: string]: string[] } | any;
+  selectedIndustry?: string;
 }
 
-const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, organizations }) => {
-  const [selectedIndustry, setSelectedIndustry] = useState<string>(industries[0]);
+const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, organizations, selectedIndustry }) => {
   const [selectedOrg, setSelectedOrg] = useState<string>('');
   const [selectedMetric, setSelectedMetric] = useState<string>('revenue');
   const [chartData, setChartData] = useState<any[]>([]);
   
-  // Set the first organization when industry changes
   useEffect(() => {
     if (organizations[selectedIndustry] && organizations[selectedIndustry].length > 0) {
       setSelectedOrg(organizations[selectedIndustry][0]);
     }
   }, [selectedIndustry, organizations]);
   
-  // Update chart data when selection changes
   useEffect(() => {
     if (!selectedOrg) return;
     
-    // Find data for selected organization
     const orgData = data.find(item => 
       item.industry === selectedIndustry && 
       item.organization === selectedOrg
     );
     
     if (orgData) {
-      // Format data for chart based on selected metric
       const metricKey = selectedMetric === 'revenue' 
         ? 'revenuePct' 
         : selectedMetric === 'margin' 
@@ -73,7 +68,6 @@ const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, org
     }
   }, [selectedIndustry, selectedOrg, selectedMetric, data]);
   
-  // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -119,7 +113,7 @@ const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, org
               <SelectValue placeholder="Select Industry" />
             </SelectTrigger>
             <SelectContent>
-              {industries.map((industry) => (
+              {industries?.map((industry) => (
                 <SelectItem key={industry} value={industry}>{industry}</SelectItem>
               ))}
             </SelectContent>
@@ -182,7 +176,6 @@ const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, org
           </ResponsiveContainer>
         </div>
         
-        {/* Analysis box */}
         <div className="mt-2 p-3 bg-gray-50 rounded-lg animate-slide-up">
           <h4 className="font-medium text-sm mb-1">Projected Impact:</h4>
           {chartData.length > 0 && (

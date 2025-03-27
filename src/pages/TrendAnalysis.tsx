@@ -1,12 +1,11 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LineChart, TrendingUp, ArrowUp, ArrowDown, Info } from 'lucide-react';
+import { LineChart as LineChartIcon, TrendingUp, ArrowUp, ArrowDown, Info } from 'lucide-react';
 import { 
-  LineChart as RechartsLineChart, 
+  LineChart, 
   Line, 
   XAxis, 
   YAxis, 
@@ -26,15 +25,12 @@ const TrendAnalysis = () => {
 
   const [selectedIndustry, setSelectedIndustry] = useState(data.industries[0]);
   
-  // Extract years from competitive landscape data
   const years = [...new Set(competitiveLandscape.map(item => item.year))].sort();
   
-  // Filter data for the selected industry
   const industryTrends = competitiveLandscape.filter(item => 
     item.industry === selectedIndustry
   ).sort((a, b) => a.year - b.year);
 
-  // Calculate CX trend data for selected industry
   const cxIndexTrend = data.industries.map(industry => {
     const industryData = data.cxIndexData.filter(item => item.industry === industry);
     const average = parseFloat((industryData.reduce((acc, item) => acc + item.cxIndex, 0) / industryData.length).toFixed(1));
@@ -60,7 +56,7 @@ const TrendAnalysis = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <LineChart className="h-8 w-8 text-primary" />
+              <LineChartIcon className="h-8 w-8 text-primary" />
               Trend Analysis
             </h1>
             <p className="text-muted-foreground">
@@ -253,7 +249,6 @@ const TrendAnalysis = () => {
   );
 };
 
-// Bar chart component for CX trends
 const BarChartWithLabels = ({ data }: { data: any[] }) => {
   const sortedData = [...data].sort((a, b) => b.change - a.change);
   

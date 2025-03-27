@@ -1,4 +1,3 @@
-
 import React from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +37,6 @@ const CompetitiveData = () => {
             <CXIndexSummary 
               data={data.cxIndexData}
               industries={data.industries}
-              organizations={data.organizations}
             />
           </TabsContent>
           
@@ -53,8 +51,7 @@ const CompetitiveData = () => {
             <CorrelationAnalysis 
               data={data.correlationData}
               industries={data.industries}
-              organizations={data.organizations}
-              metrics={data.financialMetrics}
+              financialMetrics={data.financialMetrics}
             />
           </TabsContent>
         </Tabs>
@@ -155,14 +152,11 @@ const CompetitiveData = () => {
   );
 };
 
-// Positioning Matrix component
 const PositioningMatrix = ({ data }: { data: any }) => {
-  // For this demo, we'll assume market share is derived from CX Index and randomized
   const matrixData = data.cxIndexData.map((item: any) => {
-    // Calculate a mock market share value correlated with CX Index but with some variance
-    const baseShare = (item.cxIndex - 60) / 2; // Base percentage derived from CX
-    const variance = Math.random() * 6 - 3; // +/- 3% variance
-    const marketShare = Math.max(0.1, Math.min(15, baseShare + variance)); // Clamp between 0.1 and 15
+    const baseShare = (item.cxIndex - 60) / 2;
+    const variance = Math.random() * 6 - 3;
+    const marketShare = Math.max(0.1, Math.min(15, baseShare + variance));
     
     return {
       ...item,
@@ -180,19 +174,15 @@ const PositioningMatrix = ({ data }: { data: any }) => {
   );
 };
 
-// Generate SWOT analysis data for each industry based on mock data
 const generateSwotForIndustry = (industry: string, data: any) => {
-  // Get industry-specific data
   const industryData = data.cxIndexData.filter((item: any) => item.industry === industry);
   const industryLoadings = data.industryLoadings.find((item: any) => item.industry === industry);
   const competitiveData = data.competitiveLandscape.filter((item: any) => item.industry === industry);
   
-  // Get top and bottom performers
   const sortedByPerformance = [...industryData].sort((a, b) => b.cxIndex - a.cxIndex);
   const topPerformer = sortedByPerformance[0];
   const bottomPerformer = sortedByPerformance[sortedByPerformance.length - 1];
   
-  // Get top CX dimensions for this industry
   const dimensions = Object.entries(industryLoadings || {})
     .filter(([key]) => key !== 'industry')
     .sort(([, a], [, b]) => (b as number) - (a as number));
@@ -200,11 +190,9 @@ const generateSwotForIndustry = (industry: string, data: any) => {
   const topDimensions = dimensions.slice(0, 2).map(([key]) => key);
   const weakDimensions = dimensions.slice(-2).map(([key]) => key);
   
-  // Get competitive trend
   const competitiveTrend = competitiveData.length > 1 ? 
     competitiveData[competitiveData.length - 1].competitiveIntensity - competitiveData[0].competitiveIntensity : 0;
   
-  // Generate SWOT based on the data
   return {
     strengths: [
       `Strong performance in ${topDimensions[0]}`,

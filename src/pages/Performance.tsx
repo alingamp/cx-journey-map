@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -233,7 +232,6 @@ const Performance = () => {
           <TabsContent value="financial" className="mt-4">
             <FinancialImpact 
               data={financialData}
-              selectedIndustry={selectedIndustry}
               organizations={data.organizations[selectedIndustry] || []}
             />
           </TabsContent>
