@@ -103,7 +103,7 @@ const Performance = () => {
     });
   };
 
-  // Prepare radar chart data - always define the hook, even if data isn't available yet
+  // Prepare radar chart data - always define this hook
   const radarChartData = React.useMemo(() => {
     if (!selectedOrganization || !selectedIndustry) return [];
     
@@ -187,7 +187,7 @@ const Performance = () => {
       );
       
       const topCompetitorFeedback = data.feedbackDiagnostics.find(
-        f => f.organization === competitorData[0].organization && f.industry === selectedIndustry
+        f => f.organization === competitorData[0]?.organization && f.industry === selectedIndustry
       );
       
       const orgScore = orgFeedback ? orgFeedback[dim] : 0;
@@ -483,19 +483,14 @@ const Performance = () => {
                             />
                             <Bar dataKey="change" radius={[0, 4, 4, 0]}>
                               <LabelList dataKey="change" position="right" formatter={(v: number) => `${v > 0 ? '+' : ''}${v}`} />
-                              {React.useMemo(() => {
-                                if (!orgData) return [];
-                                
-                                return [...competitorData, orgData].map((entry) => {
-                                  const change = entry.cxIndex - entry.lastYearIndex;
-                                  return (
-                                    <Cell 
-                                      key={`cell-${entry.organization}`} 
-                                      fill={change > 0 ? '#10b981' : '#ef4444'} 
-                                    />
-                                  );
-                                });
-                              }, [orgData, competitorData])}
+                              {yoyImprovementData.map((entry) => {
+                                return (
+                                  <Cell 
+                                    key={`cell-${entry.organization}`} 
+                                    fill={entry.change > 0 ? '#10b981' : '#ef4444'} 
+                                  />
+                                );
+                              })}
                             </Bar>
                           </BarChart>
                         </ResponsiveContainer>
