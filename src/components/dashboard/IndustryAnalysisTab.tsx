@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Building } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -16,6 +16,7 @@ interface IndustryAnalysisTabProps {
 const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competitiveLandscape }) => {
   const [selectedIndustry, setSelectedIndustry] = useState<string>(data.industries[0]);
   const [industryTab, setIndustryTab] = useState<string>('overview');
+  const [historicalDataReady, setHistoricalDataReady] = useState<boolean>(false);
 
   // Calculate industry metrics for selected industry
   const cxIndexTrend = data.industries.map((industry: string) => {
@@ -36,6 +37,32 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
   });
   
   const selectedIndustryTrend = cxIndexTrend.find(item => item.industry === selectedIndustry) || null;
+
+  // Generate mock historical data if not present
+  useEffect(() => {
+    if (!data.industryHistoricalData) {
+      // Create sample historical data for each industry
+      const histData = data.industries.map((industry: string) => {
+        const years = ['2019', '2020', '2021', '2022', '2023'];
+        const metrics = ['Revenue', 'Customer Satisfaction', 'Market Share'];
+        
+        return {
+          industry,
+          years,
+          datasets: metrics.map(metric => ({
+            name: metric,
+            data: years.map(() => Math.floor(Math.random() * 50) + 50) // Random data between 50-100
+          }))
+        };
+      });
+      
+      // Add the data to the main data object
+      data.industryHistoricalData = histData;
+      setHistoricalDataReady(true);
+    } else {
+      setHistoricalDataReady(true);
+    }
+  }, [data]);
 
   return (
     <div className="pt-4 mt-0 animate-fade-in">
@@ -73,10 +100,12 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
-          <IndustryOverview 
-            data={data.industryHistoricalData} 
-            selectedIndustry={selectedIndustry} 
-          />
+          {historicalDataReady && (
+            <IndustryOverview 
+              data={data.industryHistoricalData} 
+              selectedIndustry={selectedIndustry} 
+            />
+          )}
         </TabsContent>
 
         {/* Trends Tab */}

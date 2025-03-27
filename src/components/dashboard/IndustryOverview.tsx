@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, AlertCircle } from 'lucide-react';
 
 interface IndustryOverviewProps {
   data: {
@@ -17,13 +17,31 @@ interface IndustryOverviewProps {
 }
 
 const IndustryOverview: React.FC<IndustryOverviewProps> = ({ data, selectedIndustry }) => {
-  const industryData = data?.find(item => item?.industry === selectedIndustry);
+  // Check if data is an array before using find
+  if (!Array.isArray(data)) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+            Industry Overview
+          </CardTitle>
+          <CardDescription>Data structure is invalid</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+  
+  const industryData = data.find(item => item?.industry === selectedIndustry);
   
   if (!industryData || !Array.isArray(industryData.years) || !Array.isArray(industryData.datasets)) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Industry Overview</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-amber-500" />
+            Industry Overview
+          </CardTitle>
           <CardDescription>No data available for the selected industry</CardDescription>
         </CardHeader>
       </Card>
