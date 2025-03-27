@@ -314,7 +314,7 @@ const Dashboard = () => {
                   <SelectValue placeholder="Select Industry" />
                 </SelectTrigger>
                 <SelectContent>
-                  {data.industries.map(industry => (
+                  {data.industries.map((industry: string) => (
                     <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                   ))}
                 </SelectContent>
@@ -449,9 +449,15 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="h-[300px]">
-                      <IndustryFocusChart 
-                        data={competitiveLandscape.filter(item => item.industry === selectedIndustry)}
-                      />
+                      {competitiveLandscape.filter(item => item.industry === selectedIndustry).length > 0 ? (
+                        <IndustryFocusChart 
+                          data={competitiveLandscape.filter(item => item.industry === selectedIndustry)}
+                        />
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-muted-foreground">
+                          No data available for selected industry
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -466,9 +472,15 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="h-[300px]">
-                      <CompetitiveIntensityChart 
-                        data={competitiveLandscape.filter(item => item.industry === selectedIndustry)}
-                      />
+                      {competitiveLandscape.filter(item => item.industry === selectedIndustry).length > 0 ? (
+                        <CompetitiveIntensityChart 
+                          data={competitiveLandscape.filter(item => item.industry === selectedIndustry)}
+                        />
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-muted-foreground">
+                          No data available for selected industry
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
