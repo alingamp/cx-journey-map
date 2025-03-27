@@ -73,7 +73,10 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
-          <IndustryOverview data={data} cxIndexTrend={cxIndexTrend} />
+          <IndustryOverview 
+            data={data.industryHistoricalData} 
+            selectedIndustry={selectedIndustry} 
+          />
         </TabsContent>
 
         {/* Trends Tab */}

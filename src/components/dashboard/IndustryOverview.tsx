@@ -17,9 +17,9 @@ interface IndustryOverviewProps {
 }
 
 const IndustryOverview: React.FC<IndustryOverviewProps> = ({ data, selectedIndustry }) => {
-  const industryData = data.find(item => item.industry === selectedIndustry);
+  const industryData = data?.find(item => item?.industry === selectedIndustry);
   
-  if (!industryData) {
+  if (!industryData || !Array.isArray(industryData.years) || !Array.isArray(industryData.datasets)) {
     return (
       <Card>
         <CardHeader>
