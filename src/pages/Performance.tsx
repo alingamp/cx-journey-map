@@ -102,6 +102,115 @@ const Performance = () => {
       } 
     });
   };
+
+  // Prepare radar chart data - always define the hook, even if data isn't available yet
+  const radarChartData = React.useMemo(() => {
+    if (!selectedOrganization || !selectedIndustry) return [];
+    
+    const feedbackItem = data.feedbackDiagnostics.find(item => 
+      item.industry === selectedIndustry && 
+      item.organization === selectedOrganization
+    );
+    
+    if (!feedbackItem) return [];
+    
+    return data.cxDimensions.map(dim => ({
+      dimension: dim,
+      value: feedbackItem[dim]
+    }));
+  }, [selectedIndustry, selectedOrganization, data.feedbackDiagnostics, data.cxDimensions]);
+
+  // Memoize the organization comparison data
+  const orgComparisonData = React.useMemo(() => {
+    if (!orgData) return [];
+    
+    return [
+      {
+        organization: selectedOrganization,
+        cxIndex: orgData.cxIndex,
+        isSelected: true
+      },
+      ...competitorData.slice(0, 5).map(comp => ({
+        ...comp,
+        isSelected: false
+      }))
+    ];
+  }, [orgData, selectedOrganization, competitorData]);
+
+  // Memoize the YoY improvement data
+  const yoyImprovementData = React.useMemo(() => {
+    if (!orgData) return [];
+    
+    return [
+      {
+        organization: selectedOrganization,
+        change: parseFloat((orgData.cxIndex - orgData.lastYearIndex).toFixed(1)),
+        isSelected: true
+      },
+      ...competitorData.slice(0, 5).map(comp => ({
+        organization: comp.organization,
+        change: parseFloat((comp.cxIndex - comp.lastYearIndex).toFixed(1)),
+        isSelected: false
+      }))
+    ];
+  }, [orgData, selectedOrganization, competitorData]);
+
+  // Memoize the gap analysis cells
+  const gapAnalysisCells = React.useMemo(() => {
+    if (competitorData.length === 0) return [];
+    
+    return data.cxDimensions.map((dim) => {
+      const orgScore = data.feedbackDiagnostics.find(
+        f => f.organization === selectedOrganization && f.industry === selectedIndustry
+      )?.[dim] || 0;
+      
+      const topScore = data.feedbackDiagnostics.find(
+        f => f.organization === competitorData[0]?.organization && f.industry === selectedIndustry
+      )?.[dim] || 0;
+      
+      return (
+        <Cell 
+          key={`cell-${dim}`} 
+          fill={orgScore > topScore ? '#10b981' : '#ef4444'} 
+        />
+      );
+    });
+  }, [data.cxDimensions, selectedOrganization, selectedIndustry, competitorData, data.feedbackDiagnostics]);
+
+  // Memoize the dimension gap analysis data
+  const dimensionGapData = React.useMemo(() => {
+    if (competitorData.length === 0) return [];
+    
+    return data.cxDimensions.map(dim => {
+      const orgFeedback = data.feedbackDiagnostics.find(
+        f => f.organization === selectedOrganization && f.industry === selectedIndustry
+      );
+      
+      const topCompetitorFeedback = data.feedbackDiagnostics.find(
+        f => f.organization === competitorData[0].organization && f.industry === selectedIndustry
+      );
+      
+      const orgScore = orgFeedback ? orgFeedback[dim] : 0;
+      const topScore = topCompetitorFeedback ? topCompetitorFeedback[dim] : 0;
+      
+      return {
+        dimension: dim,
+        gap: parseFloat((orgScore - topScore).toFixed(1))
+      };
+    });
+  }, [data.cxDimensions, selectedOrganization, selectedIndustry, competitorData, data.feedbackDiagnostics]);
+
+  // Memoize the cells for competitor comparison
+  const competitorBarCells = React.useMemo(() => {
+    if (!orgData) return [];
+    
+    return [orgData, ...competitorData].map((entry, index) => (
+      <Cell 
+        key={`cell-${index}`} 
+        fill={entry.organization === selectedOrganization ? '#10b981' : '#3b82f6'} 
+      />
+    ));
+  }, [orgData, competitorData, selectedOrganization]);
   
   return (
     <DashboardLayout>
@@ -241,20 +350,7 @@ const Performance = () => {
                             cx="50%" 
                             cy="50%" 
                             outerRadius="80%" 
-                            data={React.useMemo(() => {
-                              const feedbackItem = data.feedbackDiagnostics
-                                .find(item => 
-                                  item.industry === selectedIndustry && 
-                                  item.organization === selectedOrganization
-                                );
-                              
-                              if (!feedbackItem) return [];
-                              
-                              return data.cxDimensions.map(dim => ({
-                                dimension: dim,
-                                value: feedbackItem[dim]
-                              }));
-                            }, [selectedIndustry, selectedOrganization, data.feedbackDiagnostics, data.cxDimensions])}
+                            data={radarChartData}
                           >
                             <PolarGrid stroke="#e5e7eb" />
                             <PolarAngleAxis dataKey="dimension" />
@@ -326,21 +422,7 @@ const Performance = () => {
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           layout="vertical"
-                          data={React.useMemo(() => {
-                            if (!orgData) return [];
-                            
-                            return [
-                              {
-                                organization: selectedOrganization,
-                                cxIndex: orgData.cxIndex,
-                                isSelected: true
-                              },
-                              ...competitorData.slice(0, 5).map(comp => ({
-                                ...comp,
-                                isSelected: false
-                              }))
-                            ];
-                          }, [orgData, selectedOrganization, competitorData])}
+                          data={orgComparisonData}
                           margin={{
                             top: 5, right: 30, left: 80, bottom: 5,
                           }}
@@ -358,16 +440,7 @@ const Performance = () => {
                           />
                           <Bar dataKey="cxIndex" fill="#3b82f6" radius={[0, 4, 4, 0]}>
                             <LabelList dataKey="cxIndex" position="right" formatter={(v: number) => v.toFixed(1)} />
-                            {React.useMemo(() => {
-                              if (!orgData) return [];
-                              
-                              return [orgData, ...competitorData].map((entry, index) => (
-                                <Cell 
-                                  key={`cell-${index}`} 
-                                  fill={entry.organization === selectedOrganization ? '#10b981' : '#3b82f6'} 
-                                />
-                              ));
-                            }, [orgData, competitorData, selectedOrganization])}
+                            {competitorBarCells}
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
@@ -388,22 +461,7 @@ const Performance = () => {
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart
                             layout="vertical"
-                            data={React.useMemo(() => {
-                              if (!orgData) return [];
-                              
-                              return [
-                                {
-                                  organization: selectedOrganization,
-                                  change: parseFloat((orgData.cxIndex - orgData.lastYearIndex).toFixed(1)),
-                                  isSelected: true
-                                },
-                                ...competitorData.slice(0, 5).map(comp => ({
-                                  organization: comp.organization,
-                                  change: parseFloat((comp.cxIndex - comp.lastYearIndex).toFixed(1)),
-                                  isSelected: false
-                                }))
-                              ];
-                            }, [orgData, selectedOrganization, competitorData])}
+                            data={yoyImprovementData}
                             margin={{
                               top: 5, right: 30, left: 80, bottom: 5,
                             }}
@@ -458,27 +516,7 @@ const Performance = () => {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               layout="vertical"
-                              data={React.useMemo(() => {
-                                if (competitorData.length === 0) return [];
-                                
-                                return data.cxDimensions.map(dim => {
-                                  const orgFeedback = data.feedbackDiagnostics.find(
-                                    f => f.organization === selectedOrganization && f.industry === selectedIndustry
-                                  );
-                                  
-                                  const topCompetitorFeedback = data.feedbackDiagnostics.find(
-                                    f => f.organization === competitorData[0].organization && f.industry === selectedIndustry
-                                  );
-                                  
-                                  const orgScore = orgFeedback ? orgFeedback[dim] : 0;
-                                  const topScore = topCompetitorFeedback ? topCompetitorFeedback[dim] : 0;
-                                  
-                                  return {
-                                    dimension: dim,
-                                    gap: parseFloat((orgScore - topScore).toFixed(1))
-                                  };
-                                });
-                              }, [data.cxDimensions, selectedOrganization, selectedIndustry, competitorData, data.feedbackDiagnostics])}
+                              data={dimensionGapData}
                               margin={{
                                 top: 5, right: 30, left: 80, bottom: 5,
                               }}
@@ -501,26 +539,7 @@ const Performance = () => {
                               />
                               <Bar dataKey="gap" radius={[0, 4, 4, 0]}>
                                 <LabelList dataKey="gap" position="right" formatter={(v: number) => `${v > 0 ? '+' : ''}${v}`} />
-                                {React.useMemo(() => {
-                                  if (competitorData.length === 0) return [];
-                                  
-                                  return data.cxDimensions.map((dim) => {
-                                    const orgScore = data.feedbackDiagnostics.find(
-                                      f => f.organization === selectedOrganization && f.industry === selectedIndustry
-                                    )?.[dim] || 0;
-                                    
-                                    const topScore = data.feedbackDiagnostics.find(
-                                      f => f.organization === competitorData[0]?.organization && f.industry === selectedIndustry
-                                    )?.[dim] || 0;
-                                    
-                                    return (
-                                      <Cell 
-                                        key={`cell-${dim}`} 
-                                        fill={orgScore > topScore ? '#10b981' : '#ef4444'} 
-                                      />
-                                    );
-                                  });
-                                }, [data.cxDimensions, selectedOrganization, selectedIndustry, competitorData, data.feedbackDiagnostics])}
+                                {gapAnalysisCells}
                               </Bar>
                             </BarChart>
                           </ResponsiveContainer>
