@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,9 +8,12 @@ import CXIndexSummary from '@/components/CXIndexSummary';
 import CompetitiveLandscape from '@/components/CompetitiveLandscape';
 import CorrelationAnalysis from '@/components/CorrelationAnalysis';
 import { getAllData } from '@/services/mockData';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts';
 
 const CompetitiveData = () => {
   const data = getAllData();
+  const [selectedIndustry, setSelectedIndustry] = useState(data.industries[0]);
   
   return (
     <DashboardLayout>
@@ -58,14 +62,29 @@ const CompetitiveData = () => {
         
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
-            <CardHeader>
-              <CardTitle>Competitive Positioning Matrix</CardTitle>
-              <CardDescription>
-                Comparing CX performance vs market share
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div>
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  Competitive Positioning Matrix
+                </CardTitle>
+                <CardDescription>
+                  Comparing CX performance vs market share
+                </CardDescription>
+              </div>
+              <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  {data.industries.map(industry => (
+                    <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </CardHeader>
             <CardContent className="h-80">
-              <PositioningMatrix data={data} />
+              <PositioningMatrix data={data} selectedIndustry={selectedIndustry} />
             </CardContent>
           </Card>
           
@@ -152,24 +171,127 @@ const CompetitiveData = () => {
   );
 };
 
-const PositioningMatrix = ({ data }: { data: any }) => {
-  const matrixData = data.cxIndexData.map((item: any) => {
-    const baseShare = (item.cxIndex - 60) / 2;
-    const variance = Math.random() * 6 - 3;
-    const marketShare = Math.max(0.1, Math.min(15, baseShare + variance));
-    
-    return {
-      ...item,
-      marketShare: parseFloat(marketShare.toFixed(1))
-    };
-  });
+const PositioningMatrix = ({ data, selectedIndustry }: { data: any, selectedIndustry: string }) => {
+  // Filter data by selected industry and process it
+  const matrixData = data.cxIndexData
+    .filter((item: any) => item.industry === selectedIndustry)
+    .map((item: any) => {
+      const baseShare = (item.cxIndex - 60) / 2;
+      const variance = Math.random() * 6 - 3;
+      const marketShare = Math.max(0.1, Math.min(15, baseShare + variance));
+      
+      return {
+        ...item,
+        marketShare: parseFloat(marketShare.toFixed(1)),
+        size: 20  // Size for bubbles in the scatter plot
+      };
+    });
   
+  // Custom tooltip for the scatter plot
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const item = payload[0].payload;
+      return (
+        <div className="bg-white p-3 rounded-lg shadow-lg border text-sm">
+          <p className="font-medium">{item.organization}</p>
+          <div className="text-xs mt-1 space-y-1">
+            <p>CX Index: <span className="font-medium">{item.cxIndex}</span></p>
+            <p>Market Share: <span className="font-medium">{item.marketShare}%</span></p>
+            <p>Industry: <span className="font-medium">{item.industry}</span></p>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Function to determine bubble color based on CX Index
+  const getBubbleColor = (cxIndex: number) => {
+    if (cxIndex >= 85) return "#10b981"; // High - green
+    if (cxIndex >= 75) return "#3b82f6"; // Medium-high - blue
+    if (cxIndex >= 65) return "#f59e0b"; // Medium - yellow/orange
+    return "#ef4444"; // Low - red
+  };
+
+  // Find quadrant boundaries for annotation
+  const avgCX = matrixData.reduce((sum: number, item: any) => sum + item.cxIndex, 0) / matrixData.length;
+  const avgMarketShare = matrixData.reduce((sum: number, item: any) => sum + item.marketShare, 0) / matrixData.length;
+
   return (
-    <div className="h-full flex items-center justify-center p-4">
-      <div className="text-center text-sm text-muted-foreground">
-        <p>Positioning Matrix visualization would go here</p>
-        <p>Showing CX Index vs. Market Share for all organizations</p>
-      </div>
+    <div className="h-full w-full animate-fade-in">
+      <ResponsiveContainer width="100%" height="100%">
+        <ScatterChart
+          margin={{ top: 20, right: 30, bottom: 30, left: 30 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis 
+            type="number" 
+            dataKey="cxIndex" 
+            name="CX Index" 
+            domain={[60, 95]}
+            label={{ value: 'CX Index Score', position: 'bottom', offset: 0 }}
+          />
+          <YAxis 
+            type="number" 
+            dataKey="marketShare" 
+            name="Market Share (%)" 
+            label={{ value: 'Market Share (%)', angle: -90, position: 'insideLeft' }}
+          />
+          <ZAxis type="number" dataKey="size" range={[100, 400]} />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          
+          {/* Add quadrant dividers */}
+          <Scatter 
+            name={`${selectedIndustry} Organizations`} 
+            data={matrixData} 
+            fill="#8884d8"
+            shape={(props) => {
+              // Custom shape to create colored circles
+              const { cx, cy, fill, r } = props;
+              const item = props.payload;
+              return (
+                <circle 
+                  cx={cx} 
+                  cy={cy} 
+                  r={r} 
+                  fill={getBubbleColor(item.cxIndex)}
+                  stroke="#fff"
+                  strokeWidth={1}
+                  fillOpacity={0.8}
+                />
+              );
+            }}
+          />
+
+          {/* Quadrant labels */}
+          <Scatter
+            data={[
+              { cxIndex: avgCX + 10, marketShare: avgMarketShare + 2, label: "Leaders", size: 0 },
+              { cxIndex: avgCX - 10, marketShare: avgMarketShare + 2, label: "Challengers", size: 0 },
+              { cxIndex: avgCX - 10, marketShare: avgMarketShare - 2, label: "Laggards", size: 0 },
+              { cxIndex: avgCX + 10, marketShare: avgMarketShare - 2, label: "Specialists", size: 0 },
+            ]}
+            shape={(props) => {
+              const { cx, cy } = props;
+              const item = props.payload;
+              return (
+                <text 
+                  x={cx} 
+                  y={cy} 
+                  dy={-10}
+                  textAnchor="middle" 
+                  fill="#555"
+                  fontSize={10}
+                  fontWeight="bold"
+                >
+                  {item.label}
+                </text>
+              );
+            }}
+          />
+        </ScatterChart>
+      </ResponsiveContainer>
     </div>
   );
 };
