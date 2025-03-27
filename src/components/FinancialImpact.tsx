@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -26,15 +25,15 @@ interface FinancialImpactProps {
   industries?: string[];
   organizations: { [key: string]: string[] } | any;
   selectedIndustry?: string;
+  defaultOrg?: string;
 }
 
-const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, organizations, selectedIndustry }) => {
+const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, organizations, selectedIndustry, defaultOrg }) => {
   const [localSelectedIndustry, setLocalSelectedIndustry] = useState<string>(selectedIndustry || '');
   const [selectedOrg, setSelectedOrg] = useState<string>('');
   const [selectedMetric, setSelectedMetric] = useState<string>('revenue');
   const [chartData, setChartData] = useState<any[]>([]);
   
-  // Update local state when prop changes
   useEffect(() => {
     if (selectedIndustry) {
       setLocalSelectedIndustry(selectedIndustry);
@@ -42,10 +41,12 @@ const FinancialImpact: React.FC<FinancialImpactProps> = ({ data, industries, org
   }, [selectedIndustry]);
   
   useEffect(() => {
-    if (organizations[localSelectedIndustry] && organizations[localSelectedIndustry].length > 0) {
+    if (defaultOrg && organizations[localSelectedIndustry]?.includes(defaultOrg)) {
+      setSelectedOrg(defaultOrg);
+    } else if (organizations[localSelectedIndustry] && organizations[localSelectedIndustry].length > 0) {
       setSelectedOrg(organizations[localSelectedIndustry][0]);
     }
-  }, [localSelectedIndustry, organizations]);
+  }, [localSelectedIndustry, organizations, defaultOrg]);
   
   useEffect(() => {
     if (!selectedOrg) return;

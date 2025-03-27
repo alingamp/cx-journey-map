@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,9 +18,9 @@ interface FeedbackDiagnosticsProps {
   industries: string[];
   organizations: { [key: string]: string[] };
   dimensions: string[];
+  defaultOrg?: string;
 }
 
-// Custom function to determine color based on value
 const getColorForValue = (value: number) => {
   if (value >= 85) return '#10b981'; // green
   if (value >= 75) return '#22c55e'; // green-lighter
@@ -30,31 +29,29 @@ const getColorForValue = (value: number) => {
   return '#ef4444'; // red
 };
 
-const FeedbackDiagnostics: React.FC<FeedbackDiagnosticsProps> = ({ data, industries, organizations, dimensions }) => {
+const FeedbackDiagnostics: React.FC<FeedbackDiagnosticsProps> = ({ data, industries, organizations, dimensions, defaultOrg }) => {
   const [selectedIndustry, setSelectedIndustry] = useState<string>(industries[0]);
   const [selectedOrg, setSelectedOrg] = useState<string>('');
   const [chartData, setChartData] = useState<any[]>([]);
   const isMobile = useIsMobile();
   
-  // Set the first organization when industry changes
   useEffect(() => {
-    if (organizations[selectedIndustry] && organizations[selectedIndustry].length > 0) {
+    if (defaultOrg && organizations[selectedIndustry]?.includes(defaultOrg)) {
+      setSelectedOrg(defaultOrg);
+    } else if (organizations[selectedIndustry] && organizations[selectedIndustry].length > 0) {
       setSelectedOrg(organizations[selectedIndustry][0]);
     }
-  }, [selectedIndustry, organizations]);
+  }, [selectedIndustry, organizations, defaultOrg]);
   
-  // Update chart data when selection changes
   useEffect(() => {
     if (!selectedOrg) return;
     
-    // Find data for selected organization
     const orgData = data.find(item => 
       item.industry === selectedIndustry && 
       item.organization === selectedOrg
     );
     
     if (orgData) {
-      // Format and sort dimensions by value
       const sortedDimensions = [...dimensions].sort((a, b) => 
         (orgData[b] as number) - (orgData[a] as number)
       );
@@ -63,7 +60,6 @@ const FeedbackDiagnostics: React.FC<FeedbackDiagnosticsProps> = ({ data, industr
         dimension: dim,
         value: orgData[dim] as number,
         color: getColorForValue(orgData[dim] as number),
-        // Add a shortened version of the dimension name for mobile
         shortDimension: dim.substring(0, 4)
       }));
       
@@ -71,10 +67,8 @@ const FeedbackDiagnostics: React.FC<FeedbackDiagnosticsProps> = ({ data, industr
     }
   }, [selectedIndustry, selectedOrg, data, dimensions]);
 
-  // Determine chart height based on screen size
   const chartHeight = isMobile ? 240 : 310;
   
-  // Custom tooltip for better readability
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -175,7 +169,6 @@ const FeedbackDiagnostics: React.FC<FeedbackDiagnosticsProps> = ({ data, industr
           </ResponsiveContainer>
         </div>
         
-        {/* Legend with responsive layout */}
         <div className={`flex ${isMobile ? 'flex-col space-y-1' : 'justify-center items-center'} mt-2 ${isMobile ? 'gap-1' : 'gap-6'}`}>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500"></div>

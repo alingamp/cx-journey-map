@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,19 +19,22 @@ interface ExperienceImpactProps {
   industries: string[];
   organizations: { [key: string]: string[] };
   dimensions: string[];
+  defaultOrg?: string;
 }
 
-const ExperienceImpact: React.FC<ExperienceImpactProps> = ({ data, industries, organizations, dimensions }) => {
+const ExperienceImpact: React.FC<ExperienceImpactProps> = ({ data, industries, organizations, dimensions, defaultOrg }) => {
   const [selectedIndustry, setSelectedIndustry] = useState<string>(industries[0]);
   const [selectedOrg, setSelectedOrg] = useState<string>('');
   const [chartData, setChartData] = useState<any[]>([]);
   
-  // Set the first organization when industry changes
+  // Set the first organization when industry changes, or use defaultOrg if provided
   useEffect(() => {
-    if (organizations[selectedIndustry] && organizations[selectedIndustry].length > 0) {
+    if (defaultOrg && organizations[selectedIndustry]?.includes(defaultOrg)) {
+      setSelectedOrg(defaultOrg);
+    } else if (organizations[selectedIndustry] && organizations[selectedIndustry].length > 0) {
       setSelectedOrg(organizations[selectedIndustry][0]);
     }
-  }, [selectedIndustry, organizations]);
+  }, [selectedIndustry, organizations, defaultOrg]);
   
   // Update chart data when selection changes
   useEffect(() => {
