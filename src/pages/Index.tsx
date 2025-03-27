@@ -389,7 +389,7 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">
-                      {selectedIndustryTrend?.currentYear}
+                      {selectedIndustryTrend?.currentYear || 0}
                     </div>
                   </CardContent>
                 </Card>
@@ -400,7 +400,7 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">
-                      {selectedIndustryTrend?.lastYear}
+                      {selectedIndustryTrend?.lastYear || 0}
                     </div>
                   </CardContent>
                 </Card>
@@ -411,12 +411,12 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold flex items-center">
-                      {selectedIndustryTrend?.change > 0 ? (
+                      {selectedIndustryTrend && selectedIndustryTrend.change > 0 ? (
                         <ChevronUp className="mr-1 text-green-500" />
                       ) : (
                         <ChevronDown className="mr-1 text-red-500" />
                       )}
-                      {selectedIndustryTrend?.change}
+                      {selectedIndustryTrend?.change || 0}
                     </div>
                   </CardContent>
                 </Card>
@@ -427,12 +427,12 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold flex items-center">
-                      {selectedIndustryTrend?.percentChange > 0 ? (
+                      {selectedIndustryTrend && selectedIndustryTrend.percentChange > 0 ? (
                         <ChevronUp className="mr-1 text-green-500" />
                       ) : (
                         <ChevronDown className="mr-1 text-red-500" />
                       )}
-                      {selectedIndustryTrend?.percentChange}%
+                      {selectedIndustryTrend?.percentChange || 0}%
                     </div>
                   </CardContent>
                 </Card>
