@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +46,7 @@ import {
   CustomerSurvey, 
   SurveyStats 
 } from '@/services/customerSurveyData';
+import SurveyDetailDialog from '@/components/SurveyDetailDialog';
 
 const CustomerInsights = () => {
   const allData = getAllData();
@@ -57,6 +57,7 @@ const CustomerInsights = () => {
   const [selectedIndustry, setSelectedIndustry] = useState<string>('all-industries');
   const [page, setPage] = useState(0);
   const surveysPerPage = 10;
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   // Load survey data on mount
   useEffect(() => {
@@ -89,6 +90,11 @@ const CustomerInsights = () => {
   const totalPages = Math.ceil(filteredSurveys.length / surveysPerPage);
   
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+
+  const handleViewSurvey = (survey: CustomerSurvey) => {
+    setSelectedSurvey(survey);
+    setDialogOpen(true);
+  };
   
   return (
     <DashboardLayout>
@@ -317,7 +323,7 @@ const CustomerInsights = () => {
                 </TableHeader>
                 <TableBody>
                   {paginatedSurveys.map((survey) => (
-                    <TableRow key={survey.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelectedSurvey(survey)}>
+                    <TableRow key={survey.id}>
                       <TableCell className="font-medium">{survey.id}</TableCell>
                       <TableCell>{survey.industry}</TableCell>
                       <TableCell>{survey.organization}</TableCell>
@@ -326,10 +332,11 @@ const CustomerInsights = () => {
                       <TableCell>{survey.experience.type}</TableCell>
                       <TableCell>{survey.experience.channel}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedSurvey(survey);
-                        }}>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleViewSurvey(survey)}
+                        >
                           View
                         </Button>
                       </TableCell>
@@ -378,176 +385,15 @@ const CustomerInsights = () => {
           </CardContent>
         </Card>
         
-        {/* Selected Survey Details Modal */}
-        {selectedSurvey && (
-          <Card className="mt-4">
-            <CardHeader>
-              <div className="flex justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Survey Response Detail - {selectedSurvey.id}
-                </CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedSurvey(null)}>
-                  Close
-                </Button>
-              </div>
-              <CardDescription>
-                Detailed survey response from {selectedSurvey.organization} customer
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* Screening & Demographics */}
-                <div className="space-y-4">
-                  <h3 className="text-base font-semibold flex items-center gap-2 pb-2 border-b">
-                    <User className="h-4 w-4" /> Screening & Demographics
-                  </h3>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm font-medium">Age</p>
-                      <p className="text-sm">{selectedSurvey.demographics.age} years</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm font-medium">Gender</p>
-                      <p className="text-sm">{selectedSurvey.demographics.gender}</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm font-medium">Income</p>
-                      <p className="text-sm">{selectedSurvey.demographics.income}</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm font-medium">Recent Experience</p>
-                      <p className="text-sm">{selectedSurvey.demographics.hasRecentExperience ? 'Yes' : 'No'}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* General Information */}
-                <div className="space-y-4">
-                  <h3 className="text-base font-semibold flex items-center gap-2 pb-2 border-b">
-                    <Building className="h-4 w-4" /> Organization Details
-                  </h3>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm font-medium">Organization</p>
-                      <p className="text-sm">{selectedSurvey.organization}</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm font-medium">Industry</p>
-                      <p className="text-sm">{selectedSurvey.industry}</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm font-medium">Survey Date</p>
-                      <p className="text-sm">{selectedSurvey.surveyDate}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Experience Details */}
-                <div className="space-y-4">
-                  <h3 className="text-base font-semibold flex items-center gap-2 pb-2 border-b">
-                    <MessageSquare className="h-4 w-4" /> Experience Details
-                  </h3>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm font-medium">Type of Experience</p>
-                      <p className="text-sm">{selectedSurvey.experience.type}</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm font-medium">Channel</p>
-                      <p className="text-sm">{selectedSurvey.experience.channel}</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm font-medium">Initial Expectation</p>
-                      <p className="text-sm">{selectedSurvey.experience.ingoingExpectation}/10</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm font-medium">Importance of Good Experience</p>
-                      <p className="text-sm">{selectedSurvey.experience.importanceOfGoodExperience}/10</p>
-                    </div>
-                    
-                    <div className="col-span-2">
-                      <p className="text-sm font-medium">Desired Elements</p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {selectedSurvey.experience.desiredElements.map((element, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary"
-                          >
-                            {element}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Evaluation */}
-                <div className="space-y-4">
-                  <h3 className="text-base font-semibold flex items-center gap-2 pb-2 border-b">
-                    <BarChart2 className="h-4 w-4" /> Experience Evaluation
-                  </h3>
-                  
-                  <div>
-                    {Object.entries(selectedSurvey.evaluation).map(([element, score], index) => (
-                      <div key={index} className="mb-3">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>{element}</span>
-                          <span className="font-medium">{score}/10</span>
-                        </div>
-                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${
-                              score >= 8 ? 'bg-green-500' : 
-                              score >= 6 ? 'bg-amber-500' : 
-                              'bg-red-500'
-                            }`}
-                            style={{ width: `${score * 10}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="pt-4">
-                    <p className="text-sm font-medium">Outgoing Expectation</p>
-                    <div className="flex items-center mt-1">
-                      <span className="mr-2 text-sm">{selectedSurvey.impact.outgoingExpectation}/10</span>
-                      {selectedSurvey.impact.outgoingExpectation > selectedSurvey.experience.ingoingExpectation ? (
-                        <span className="text-xs text-green-500 flex items-center">
-                          <ChevronUp className="h-3 w-3 mr-1" />
-                          Improved by {selectedSurvey.impact.outgoingExpectation - selectedSurvey.experience.ingoingExpectation}
-                        </span>
-                      ) : selectedSurvey.impact.outgoingExpectation < selectedSurvey.experience.ingoingExpectation ? (
-                        <span className="text-xs text-red-500 flex items-center">
-                          <ChevronDown className="h-3 w-3 mr-1" />
-                          Decreased by {selectedSurvey.experience.ingoingExpectation - selectedSurvey.impact.outgoingExpectation}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-amber-500">Unchanged</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Survey Detail Dialog */}
+        <SurveyDetailDialog
+          survey={selectedSurvey}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
       </div>
     </DashboardLayout>
   );
 };
 
 export default CustomerInsights;
-
