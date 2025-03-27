@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, LayoutDashboard, BarChart4, LineChart, TrendingUp, PieChart, Users, Building } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, BarChart4, LineChart, TrendingUp, Users, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -21,7 +21,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     { icon: Building, label: 'Industry Analysis', path: '/industry-analysis', active: location.pathname === '/industry-analysis' },
     { icon: LineChart, label: 'Trend Analysis', path: '/trend-analysis', active: location.pathname === '/trend-analysis' },
     { icon: TrendingUp, label: 'Performance', path: '/performance', active: location.pathname === '/performance' },
-    { icon: PieChart, label: 'Competitive Data', path: '/competitive-data', active: location.pathname === '/competitive-data' },
     { icon: Users, label: 'Customer Insights', path: '/customer-insights', active: location.pathname === '/customer-insights' },
   ];
 
