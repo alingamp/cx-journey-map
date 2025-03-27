@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,7 +8,7 @@ import CompetitiveLandscape from '@/components/CompetitiveLandscape';
 import CorrelationAnalysis from '@/components/CorrelationAnalysis';
 import { getAllData } from '@/services/mockData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts';
+import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label, ReferenceLine } from 'recharts';
 
 const CompetitiveData = () => {
   const data = getAllData();
@@ -83,7 +82,7 @@ const CompetitiveData = () => {
                 </SelectContent>
               </Select>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className="h-[400px] pb-8">
               <PositioningMatrix data={data} selectedIndustry={selectedIndustry} />
             </CardContent>
           </Card>
@@ -172,22 +171,24 @@ const CompetitiveData = () => {
 };
 
 const PositioningMatrix = ({ data, selectedIndustry }: { data: any, selectedIndustry: string }) => {
-  // Filter data by selected industry and process it
   const matrixData = data.cxIndexData
     .filter((item: any) => item.industry === selectedIndustry)
     .map((item: any) => {
-      const baseShare = (item.cxIndex - 60) / 2;
-      const variance = Math.random() * 6 - 3;
-      const marketShare = Math.max(0.1, Math.min(15, baseShare + variance));
+      const baseShare = (item.cxIndex - 60) / 3;
+      const variance = Math.random() * 2 - 1;
+      const marketShare = Math.max(0.5, Math.min(15, baseShare + variance));
       
       return {
         ...item,
         marketShare: parseFloat(marketShare.toFixed(1)),
-        size: 20  // Size for bubbles in the scatter plot
+        size: 800,
+        fill: getQuadrantColor(item.cxIndex, marketShare, data.cxIndexData.filter((d: any) => d.industry === selectedIndustry))
       };
     });
   
-  // Custom tooltip for the scatter plot
+  const avgCX = matrixData.reduce((sum: number, item: any) => sum + item.cxIndex, 0) / matrixData.length;
+  const avgMarketShare = matrixData.reduce((sum: number, item: any) => sum + item.marketShare, 0) / matrixData.length;
+
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const item = payload[0].payload;
@@ -195,9 +196,8 @@ const PositioningMatrix = ({ data, selectedIndustry }: { data: any, selectedIndu
         <div className="bg-white p-3 rounded-lg shadow-lg border text-sm">
           <p className="font-medium">{item.organization}</p>
           <div className="text-xs mt-1 space-y-1">
-            <p>CX Index: <span className="font-medium">{item.cxIndex}</span></p>
+            <p>CX Index: <span className="font-medium">{item.cxIndex.toFixed(1)}</span></p>
             <p>Market Share: <span className="font-medium">{item.marketShare}%</span></p>
-            <p>Industry: <span className="font-medium">{item.industry}</span></p>
           </div>
         </div>
       );
@@ -205,89 +205,120 @@ const PositioningMatrix = ({ data, selectedIndustry }: { data: any, selectedIndu
     return null;
   };
 
-  // Function to determine bubble color based on CX Index
-  const getBubbleColor = (cxIndex: number) => {
-    if (cxIndex >= 85) return "#10b981"; // High - green
-    if (cxIndex >= 75) return "#3b82f6"; // Medium-high - blue
-    if (cxIndex >= 65) return "#f59e0b"; // Medium - yellow/orange
-    return "#ef4444"; // Low - red
+  const QuadrantLabels = () => {
+    const minCX = Math.min(...matrixData.map((d: any) => d.cxIndex)) - 5;
+    const maxCX = Math.max(...matrixData.map((d: any) => d.cxIndex)) + 5;
+    const minShare = 0;
+    const maxShare = Math.max(...matrixData.map((d: any) => d.marketShare)) + 2;
+    
+    return (
+      <>
+        <text 
+          x={avgCX + (maxCX - avgCX) / 2} 
+          y={avgMarketShare + (maxShare - avgMarketShare) / 4}
+          textAnchor="middle" 
+          fill="#2E7D32"
+          fontSize={12}
+          fontWeight="bold"
+        >
+          Leaders
+        </text>
+        
+        <text 
+          x={minCX + (avgCX - minCX) / 2} 
+          y={avgMarketShare + (maxShare - avgMarketShare) / 4}
+          textAnchor="middle" 
+          fill="#1565C0"
+          fontSize={12}
+          fontWeight="bold"
+        >
+          Challengers
+        </text>
+        
+        <text 
+          x={minCX + (avgCX - minCX) / 2} 
+          y={minShare + avgMarketShare / 4}
+          textAnchor="middle" 
+          fill="#C62828"
+          fontSize={12}
+          fontWeight="bold"
+        >
+          Laggards
+        </text>
+        
+        <text 
+          x={avgCX + (maxCX - avgCX) / 2} 
+          y={minShare + avgMarketShare / 4}
+          textAnchor="middle" 
+          fill="#F57F17"
+          fontSize={12}
+          fontWeight="bold"
+        >
+          Specialists
+        </text>
+      </>
+    );
   };
 
-  // Find quadrant boundaries for annotation
-  const avgCX = matrixData.reduce((sum: number, item: any) => sum + item.cxIndex, 0) / matrixData.length;
-  const avgMarketShare = matrixData.reduce((sum: number, item: any) => sum + item.marketShare, 0) / matrixData.length;
-
   return (
-    <div className="h-full w-full animate-fade-in">
+    <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
         <ScatterChart
-          margin={{ top: 20, right: 30, bottom: 30, left: 30 }}
+          margin={{ top: 20, right: 20, bottom: 30, left: 20 }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+          
           <XAxis 
             type="number" 
             dataKey="cxIndex" 
             name="CX Index" 
-            domain={[60, 95]}
-            label={{ value: 'CX Index Score', position: 'bottom', offset: 0 }}
+            domain={['dataMin - 2', 'dataMax + 2']}
+            tickCount={5}
+            label={{ 
+              value: 'CX Index Score', 
+              position: 'insideBottom', 
+              offset: -10,
+              style: { textAnchor: 'middle', fontSize: 12 }
+            }}
           />
+          
           <YAxis 
             type="number" 
             dataKey="marketShare" 
             name="Market Share (%)" 
-            label={{ value: 'Market Share (%)', angle: -90, position: 'insideLeft' }}
-          />
-          <ZAxis type="number" dataKey="size" range={[100, 400]} />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend />
-          
-          {/* Add quadrant dividers */}
-          <Scatter 
-            name={`${selectedIndustry} Organizations`} 
-            data={matrixData} 
-            fill="#8884d8"
-            shape={(props) => {
-              // Custom shape to create colored circles
-              const { cx, cy, fill, r } = props;
-              const item = props.payload;
-              return (
-                <circle 
-                  cx={cx} 
-                  cy={cy} 
-                  r={r} 
-                  fill={getBubbleColor(item.cxIndex)}
-                  stroke="#fff"
-                  strokeWidth={1}
-                  fillOpacity={0.8}
-                />
-              );
+            domain={[0, 'dataMax + 2']}
+            tickCount={5}
+            label={{ 
+              value: 'Market Share (%)', 
+              angle: -90, 
+              position: 'insideLeft',
+              style: { textAnchor: 'middle', fontSize: 12 }
             }}
           />
-
-          {/* Quadrant labels */}
-          <Scatter
-            data={[
-              { cxIndex: avgCX + 10, marketShare: avgMarketShare + 2, label: "Leaders", size: 0 },
-              { cxIndex: avgCX - 10, marketShare: avgMarketShare + 2, label: "Challengers", size: 0 },
-              { cxIndex: avgCX - 10, marketShare: avgMarketShare - 2, label: "Laggards", size: 0 },
-              { cxIndex: avgCX + 10, marketShare: avgMarketShare - 2, label: "Specialists", size: 0 },
-            ]}
-            shape={(props) => {
-              const { cx, cy } = props;
-              const item = props.payload;
-              return (
-                <text 
-                  x={cx} 
-                  y={cy} 
-                  dy={-10}
-                  textAnchor="middle" 
-                  fill="#555"
-                  fontSize={10}
-                  fontWeight="bold"
-                >
-                  {item.label}
-                </text>
-              );
+          
+          <ZAxis type="number" dataKey="size" range={[100, 500]} />
+          
+          <Tooltip content={<CustomTooltip />} />
+          
+          <ReferenceLine x={avgCX} stroke="#666" strokeDasharray="3 3" />
+          <ReferenceLine y={avgMarketShare} stroke="#666" strokeDasharray="3 3" />
+          
+          <svg>
+            <QuadrantLabels />
+          </svg>
+          
+          <Scatter 
+            name={`${selectedIndustry} Organizations`} 
+            data={matrixData}
+            fillOpacity={0.8}
+          />
+          
+          <Legend
+            verticalAlign="bottom"
+            align="center"
+            wrapperStyle={{ 
+              paddingTop: 20,
+              fontSize: 12
             }}
           />
         </ScatterChart>
@@ -341,6 +372,21 @@ const generateSwotForIndustry = (industry: string, data: any) => {
       `Economic pressures affecting customer spending behavior`
     ]
   };
+};
+
+const getQuadrantColor = (cxIndex: number, marketShare: number, industryData: any[]) => {
+  const avgCX = industryData.reduce((sum, item) => sum + item.cxIndex, 0) / industryData.length;
+  const avgMarketShare = industryData.reduce((sum, item) => sum + item.marketShare, 0) / industryData.length;
+  
+  if (cxIndex >= avgCX && marketShare >= avgMarketShare) {
+    return "#2E7D32";
+  } else if (cxIndex < avgCX && marketShare >= avgMarketShare) {
+    return "#1565C0";
+  } else if (cxIndex < avgCX && marketShare < avgMarketShare) {
+    return "#C62828";
+  } else {
+    return "#F57F17";
+  }
 };
 
 export default CompetitiveData;
