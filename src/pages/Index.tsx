@@ -5,8 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAllData, generateCompetitiveLandscape } from '@/services/mockData';
 import MarketOverviewTab from '@/components/dashboard/MarketOverviewTab';
 import IndustryAnalysisTab from '@/components/dashboard/IndustryAnalysisTab';
-import CompetitiveAnalysisTab from '@/components/dashboard/CompetitiveAnalysisTab';
-import FinancialImpactTab from '@/components/dashboard/FinancialImpactTab';
 
 const Dashboard = () => {
   const [data, setData] = useState<any>(null);
@@ -42,9 +40,9 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight animate-fade-in">OW Customer Experience Index</h1>
+        <h1 className="text-3xl font-bold tracking-tight animate-fade-in">Customer Experience Index</h1>
         <p className="text-gray-500 mt-1 animate-fade-in" style={{ animationDelay: '100ms' }}>
-          Market, industry, and financial analysis of customer experience metrics
+          Market and industry analysis of customer experience metrics
         </p>
       </div>
       
@@ -63,18 +61,6 @@ const Dashboard = () => {
             >
               Industry Analysis
             </TabsTrigger>
-            <TabsTrigger 
-              value="competitive" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 px-4"
-            >
-              Competitive Analysis
-            </TabsTrigger>
-            <TabsTrigger 
-              value="financial" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 px-4"
-            >
-              Financial Impact
-            </TabsTrigger>
           </TabsList>
         </div>
         
@@ -86,16 +72,6 @@ const Dashboard = () => {
         {/* Industry Analysis Tab */}
         <TabsContent value="industry">
           <IndustryAnalysisTab data={data} competitiveLandscape={competitiveLandscape} />
-        </TabsContent>
-        
-        {/* Competitive Analysis Tab */}
-        <TabsContent value="competitive">
-          <CompetitiveAnalysisTab data={data} competitiveLandscape={competitiveLandscape} />
-        </TabsContent>
-        
-        {/* Financial Impact Tab */}
-        <TabsContent value="financial">
-          <FinancialImpactTab data={data} />
         </TabsContent>
       </Tabs>
     </DashboardLayout>
