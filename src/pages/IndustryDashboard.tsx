@@ -6,7 +6,6 @@ import { Building } from 'lucide-react';
 import { getAllData, generateCompetitiveLandscape } from '@/services/mockData';
 import SummaryCards from '@/components/dashboard/SummaryCards';
 import TelecomCompaniesSummary from '@/components/dashboard/TelecomCompaniesSummary';
-import IndustryBarChart from '@/components/dashboard/IndustryBarChart';
 import ComparisonGraphs from '@/components/dashboard/ComparisonGraphs';
 
 const IndustryDashboard = () => {
@@ -55,20 +54,6 @@ const IndustryDashboard = () => {
     (a.cxIndex - a.lastYearIndex) - (b.cxIndex - b.lastYearIndex)
   ).reverse()[0];
   
-  // Calculate industry metrics for trend chart
-  const cxIndexTrend = data.industries.map((industry: string) => {
-    const industryData = data.cxIndexData.filter((item: any) => item.industry === industry);
-    const average = parseFloat((industryData.reduce((acc: number, item: any) => acc + item.cxIndex, 0) / industryData.length).toFixed(1));
-    const lastYearAverage = parseFloat((industryData.reduce((acc: number, item: any) => acc + item.lastYearIndex, 0) / industryData.length).toFixed(1));
-    const change = parseFloat((average - lastYearAverage).toFixed(1));
-    
-    return {
-      label: industry,
-      value: change,
-      isPositive: change > 0
-    };
-  });
-  
   // Get telecom-specific companies and their metrics
   const telecomCompanies = data.organizations["Telecom"] || [];
   const telecomMetrics = telecomCompanies.map((company: string) => {
@@ -94,14 +79,6 @@ const IndustryDashboard = () => {
     }
     return 0;
   });
-
-  // Prepare data for comparison bar chart
-  const comparisonData = telecomMetrics.map(company => ({
-    label: company.organization,
-    value: typeof company.cxIndex === 'number' ? company.cxIndex : 0,
-    secondaryValue: company.directFeedback,
-    isPositive: company.trend === 'up'
-  }));
   
   return (
     <DashboardLayout>
@@ -150,28 +127,9 @@ const IndustryDashboard = () => {
         <TelecomCompaniesSummary telecomMetrics={telecomMetrics} />
       )}
       
-      {/* Comparison Graphs - Replace Tabs */}
+      {/* Comparison Graphs */}
       <div className="space-y-6 mb-6">
         <ComparisonGraphs data={telecomMetrics} />
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <IndustryBarChart 
-            title="Company CX Index Comparison" 
-            description="CX Index scores for companies in the selected industry"
-            data={comparisonData}
-            valueLabel="CX Index"
-            secondaryValueLabel="Direct Feedback"
-            showTrend={false}
-          />
-          
-          <IndustryBarChart 
-            title="Industry CX Trends" 
-            description="Year-over-year change in Customer Experience Index"
-            data={cxIndexTrend}
-            valueLabel="Change"
-            showTrend={true}
-          />
-        </div>
       </div>
     </DashboardLayout>
   );
