@@ -1,3 +1,4 @@
+
 // Mock data generator for CX dashboard
 
 // Industry types - now focusing more on Telecom
@@ -367,8 +368,14 @@ export const getAllData = () => {
     financialMetrics
   };
   
+  // Generate AT&T specific data
+  baseData.attData = {
+    surveys: generateATTSurveyData(),
+    passiveMetrics: generateATTPassiveMetrics()
+  };
+  
   // Generate historical data for each industry
-  baseData.industryHistoricalData = industries.map((industry) => {
+  const industryHistoricalData = industries.map((industry) => {
     const years = ['2019', '2020', '2021', '2022', '2023'];
     // For telecom, create more detailed metrics
     const metrics = industry === "Telecom" 
@@ -401,14 +408,12 @@ export const getAllData = () => {
       })
     };
   });
-
-  // Create AT&T specific data
-  baseData.attData = {
-    surveys: generateATTSurveyData(),
-    passiveMetrics: generateATTPassiveMetrics()
-  };
   
-  return baseData;
+  // Add the historical data to the base data object
+  return {
+    ...baseData,
+    industryHistoricalData
+  };
 };
 
 // Helper for more accurate correlations
