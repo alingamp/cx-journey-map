@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Building } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,11 +13,10 @@ interface IndustryAnalysisTabProps {
 }
 
 const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competitiveLandscape }) => {
-  const [selectedIndustry, setSelectedIndustry] = useState<string>(data.industries[0]);
+  const [selectedIndustry, setSelectedIndustry] = useState<string>("Telecom");
   const [industryTab, setIndustryTab] = useState<string>('overview');
   const [historicalDataReady, setHistoricalDataReady] = useState<boolean>(false);
 
-  // Calculate industry metrics for selected industry
   const cxIndexTrend = data.industries.map((industry: string) => {
     const industryData = data.cxIndexData.filter((item: any) => item.industry === industry);
     const average = parseFloat((industryData.reduce((acc: number, item: any) => acc + item.cxIndex, 0) / industryData.length).toFixed(1));
@@ -38,10 +36,8 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
   
   const selectedIndustryTrend = cxIndexTrend.find(item => item.industry === selectedIndustry) || null;
 
-  // Generate mock historical data if not present
   useEffect(() => {
     if (!data.industryHistoricalData) {
-      // Create sample historical data for each industry
       const histData = data.industries.map((industry: string) => {
         const years = ['2019', '2020', '2021', '2022', '2023'];
         const metrics = ['Revenue', 'Customer Satisfaction', 'Market Share'];
@@ -51,18 +47,19 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
           years,
           datasets: metrics.map(metric => ({
             name: metric,
-            data: years.map(() => Math.floor(Math.random() * 50) + 50) // Random data between 50-100
+            data: years.map(() => Math.floor(Math.random() * 50) + 50)
           }))
         };
       });
       
-      // Add the data to the main data object
       data.industryHistoricalData = histData;
       setHistoricalDataReady(true);
     } else {
       setHistoricalDataReady(true);
     }
   }, [data]);
+
+  const isSelectable = (industry: string) => industry === "Telecom";
 
   return (
     <div className="pt-4 mt-0 animate-fade-in">
@@ -84,7 +81,14 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
             </SelectTrigger>
             <SelectContent>
               {data.industries.map((industry: string) => (
-                <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                <SelectItem 
+                  key={industry} 
+                  value={industry} 
+                  disabled={!isSelectable(industry)}
+                  className={!isSelectable(industry) ? "text-muted-foreground italic" : ""}
+                >
+                  {industry} {!isSelectable(industry) && "(example only)"}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -98,7 +102,6 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
           <TabsTrigger value="factors">CX Factors</TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           {historicalDataReady && (
             <IndustryOverview 
@@ -108,7 +111,6 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
           )}
         </TabsContent>
 
-        {/* Trends Tab */}
         <TabsContent value="trends" className="space-y-4">
           <IndustryStatCards selectedIndustryTrend={selectedIndustryTrend} />
           <IndustryCharts 
@@ -117,7 +119,6 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
           />
         </TabsContent>
 
-        {/* CX Factors Tab */}
         <TabsContent value="factors">
           <IndustryFactors data={data} />
         </TabsContent>
