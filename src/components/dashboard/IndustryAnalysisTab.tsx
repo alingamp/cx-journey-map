@@ -77,19 +77,19 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
   }, [data]);
 
   return (
-    <div className="pt-4 mt-0 animate-fade-in">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+    <div className="pt-2 sm:pt-4 mt-0 animate-fade-in">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Building className="h-6 w-6 text-primary" />
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Building className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             Industry Analysis
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Analyze industry competition, CX trends, and factor importance
           </p>
         </div>
         
-        <div className="w-full lg:w-72">
+        <div className="w-full lg:w-72 mt-3 lg:mt-0">
           <Select value={selectedIndustry} onValueChange={handleIndustryChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select Industry" />
@@ -110,34 +110,36 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
         </div>
       </div>
 
-      <Tabs value={industryTab} onValueChange={setIndustryTab} className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="overview">Industry Overview</TabsTrigger>
-          <TabsTrigger value="trends">Trend Analysis</TabsTrigger>
-          <TabsTrigger value="factors">CX Factors</TabsTrigger>
-        </TabsList>
+      <div className="overflow-x-auto -mx-4 sm:mx-0 pb-2">
+        <Tabs value={industryTab} onValueChange={setIndustryTab} className="min-w-[400px] sm:min-w-full px-4 sm:px-0">
+          <TabsList className="mb-4">
+            <TabsTrigger value="overview">Industry Overview</TabsTrigger>
+            <TabsTrigger value="trends">Trend Analysis</TabsTrigger>
+            <TabsTrigger value="factors">CX Factors</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          {historicalDataReady && (
-            <IndustryOverview 
-              data={data.industryHistoricalData} 
+          <TabsContent value="overview" className="space-y-4">
+            {historicalDataReady && (
+              <IndustryOverview 
+                data={data.industryHistoricalData} 
+                selectedIndustry={selectedIndustry} 
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="trends" className="space-y-4">
+            <IndustryStatCards selectedIndustryTrend={selectedIndustryTrend} />
+            <IndustryCharts 
+              competitiveLandscape={competitiveLandscape} 
               selectedIndustry={selectedIndustry} 
             />
-          )}
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="trends" className="space-y-4">
-          <IndustryStatCards selectedIndustryTrend={selectedIndustryTrend} />
-          <IndustryCharts 
-            competitiveLandscape={competitiveLandscape} 
-            selectedIndustry={selectedIndustry} 
-          />
-        </TabsContent>
-
-        <TabsContent value="factors">
-          <IndustryFactors data={data} />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="factors">
+            <IndustryFactors data={data} />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };

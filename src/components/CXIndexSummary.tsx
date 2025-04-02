@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,64 +33,66 @@ const CXIndexSummary: React.FC<CXIndexSummaryProps> = ({ data, industries, organ
   
   return (
     <Card className="glass-card animate-scale-in">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-center">
+      <CardHeader className="pb-2 sm:pb-3">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 card-header-mobile">
           <div>
-            <CardTitle className="text-xl font-semibold flex items-center gap-2">
-              <BarChart3 size={20} className="text-primary" />
+            <CardTitle className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+              <BarChart3 size={18} className="text-primary" />
               CX Index Summary
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sm">
               Overall performance across organizations
             </CardDescription>
           </div>
-          <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select Industry" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All Industries">All Industries</SelectItem>
-              {industries.map((industry) => (
-                <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="w-full sm:w-auto">
+            <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Select Industry" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All Industries">All Industries</SelectItem>
+                {industries.map((industry) => (
+                  <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="pt-2">
-        <div className="mb-6">
+        <div className="mb-5 sm:mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Average CX Index</span>
-            <span className="font-semibold text-lg">{averageScore.toFixed(1)}</span>
+            <span className="text-xs sm:text-sm text-gray-600">Average CX Index</span>
+            <span className="font-semibold text-base sm:text-lg">{averageScore.toFixed(1)}</span>
           </div>
           <Progress value={averageScore} className="h-2" />
         </div>
         
         {/* Top performers */}
-        <div className="mb-6 animate-slide-in" style={{ animationDelay: '100ms' }}>
-          <h3 className="text-sm font-medium mb-3 text-gray-600">Top Performers</h3>
-          <div className="space-y-3">
+        <div className="mb-5 sm:mb-6 animate-slide-in" style={{ animationDelay: '100ms' }}>
+          <h3 className="text-xs sm:text-sm font-medium mb-2 sm:mb-3 text-gray-600">Top Performers</h3>
+          <div className="space-y-2 sm:space-y-3">
             {topPerformers.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium">{index + 1}</span>
+              <div key={index} className="flex items-center justify-between p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="font-medium text-xs sm:text-sm min-w-[15px]">{index + 1}</span>
                   <div>
-                    <p className="font-medium">{item.organization}</p>
-                    <p className="text-xs text-gray-500">{item.industry}</p>
+                    <p className="font-medium text-xs sm:text-sm">{item.organization}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">{item.industry}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={item.isImproving ? "success" : "destructive"} className="rounded-md font-normal">
+                  <Badge variant={item.isImproving ? "success" : "destructive"} className="rounded-md font-normal text-[10px] sm:text-xs py-0.5 px-1.5 sm:px-2">
                     {item.isImproving ? (
-                      <TrendingUp size={14} className="mr-1" />
+                      <TrendingUp size={12} className="mr-1" />
                     ) : (
-                      <TrendingDown size={14} className="mr-1" />
+                      <TrendingDown size={12} className="mr-1" />
                     )}
                     {item.cxIndex > item.lastYearIndex 
                       ? `+${(item.cxIndex - item.lastYearIndex).toFixed(1)}` 
                       : (item.cxIndex - item.lastYearIndex).toFixed(1)}
                   </Badge>
-                  <span className="font-semibold">{item.cxIndex}</span>
+                  <span className="font-semibold text-xs sm:text-sm">{item.cxIndex}</span>
                 </div>
               </div>
             ))}
@@ -98,29 +101,29 @@ const CXIndexSummary: React.FC<CXIndexSummaryProps> = ({ data, industries, organ
         
         {/* Bottom performers */}
         <div className="animate-slide-in" style={{ animationDelay: '200ms' }}>
-          <h3 className="text-sm font-medium mb-3 text-gray-600">Needs Improvement</h3>
-          <div className="space-y-3">
+          <h3 className="text-xs sm:text-sm font-medium mb-2 sm:mb-3 text-gray-600">Needs Improvement</h3>
+          <div className="space-y-2 sm:space-y-3">
             {bottomPerformers.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium">{sortedData.length - index}</span>
+              <div key={index} className="flex items-center justify-between p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="font-medium text-xs sm:text-sm min-w-[15px]">{sortedData.length - index}</span>
                   <div>
-                    <p className="font-medium">{item.organization}</p>
-                    <p className="text-xs text-gray-500">{item.industry}</p>
+                    <p className="font-medium text-xs sm:text-sm">{item.organization}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">{item.industry}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={item.isImproving ? "success" : "destructive"} className="rounded-md font-normal">
+                  <Badge variant={item.isImproving ? "success" : "destructive"} className="rounded-md font-normal text-[10px] sm:text-xs py-0.5 px-1.5 sm:px-2">
                     {item.isImproving ? (
-                      <TrendingUp size={14} className="mr-1" />
+                      <TrendingUp size={12} className="mr-1" />
                     ) : (
-                      <TrendingDown size={14} className="mr-1" />
+                      <TrendingDown size={12} className="mr-1" />
                     )}
                     {item.cxIndex > item.lastYearIndex 
                       ? `+${(item.cxIndex - item.lastYearIndex).toFixed(1)}` 
                       : (item.cxIndex - item.lastYearIndex).toFixed(1)}
                   </Badge>
-                  <span className="font-semibold">{item.cxIndex}</span>
+                  <span className="font-semibold text-xs sm:text-sm">{item.cxIndex}</span>
                 </div>
               </div>
             ))}

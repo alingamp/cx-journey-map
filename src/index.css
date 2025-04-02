@@ -97,12 +97,47 @@
   }
 }
 
+/* Responsive utilities */
+@layer utilities {
+  .responsive-container {
+    @apply w-full px-4 sm:px-6 lg:px-8 mx-auto;
+  }
+  
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+  }
+  
+  .responsive-grid-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6;
+  }
+  
+  .responsive-flex {
+    @apply flex flex-col sm:flex-row gap-4 sm:gap-6;
+  }
+  
+  .card-body-responsive {
+    @apply p-3 sm:p-4 md:p-6;
+  }
+  
+  .text-responsive {
+    @apply text-sm sm:text-base;
+  }
+  
+  .heading-responsive {
+    @apply text-lg sm:text-xl md:text-2xl font-bold;
+  }
+  
+  .subheading-responsive {
+    @apply text-base sm:text-lg font-medium;
+  }
+}
+
 .glass-card {
   @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-lg;
 }
 
 .chart-container {
-  @apply relative h-full w-full transition-all duration-300 ease-in-out;
+  @apply relative h-full w-full transition-all duration-300 ease-in-out min-h-[250px];
 }
 
 .chart-container .recharts-surface {
@@ -153,6 +188,25 @@
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+/* Responsive fixes for mobile */
+@media (max-width: 640px) {
+  .recharts-legend-wrapper {
+    font-size: 10px !important;
+  }
+  
+  .recharts-text {
+    font-size: 10px !important;
+  }
+  
+  .recharts-cartesian-axis-tick-value {
+    font-size: 8px !important;
+  }
+  
+  .card-header-mobile {
+    @apply flex-col space-y-2 items-start !important;
+  }
+}
+
 /* Slight animation for page transitions */
 .page-transition-enter {
   opacity: 0;
@@ -172,4 +226,16 @@
 .page-transition-exit-active {
   opacity: 0;
   transition: opacity 0.3s;
+}
+
+/* Responsive table for mobile */
+.responsive-table {
+  @apply w-full;
+}
+
+@media (max-width: 768px) {
+  .responsive-table th,
+  .responsive-table td {
+    @apply px-2 py-2 text-xs;
+  }
 }

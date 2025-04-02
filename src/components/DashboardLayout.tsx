@@ -30,7 +30,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200 py-4 px-4 sm:px-6 lg:hidden">
+      {/* Mobile header */}
+      <header className="bg-white border-b border-gray-200 py-3 px-4 sm:px-6 lg:hidden sticky top-0 z-10 shadow-sm">
         <div className="flex items-center justify-between">
           <button 
             type="button" 
@@ -39,9 +40,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           >
             <span className="sr-only">Open menu</span>
             {isMenuOpen ? (
-              <X className="block h-6 w-6" aria-hidden="true" />
+              <X className="block h-5 w-5" aria-hidden="true" />
             ) : (
-              <Menu className="block h-6 w-6" aria-hidden="true" />
+              <Menu className="block h-5 w-5" aria-hidden="true" />
             )}
           </button>
           <div className="flex-1 flex justify-center">
@@ -52,13 +53,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               OW CX Index
             </button>
           </div>
-          <div className="w-6">
+          <div className="w-5">
             {/* Placeholder for symmetry */}
           </div>
         </div>
         
         {isMenuOpen && (
-          <nav className="mt-4 space-y-1">
+          <nav className="mt-3 space-y-1 animate-fade-in">
             {filteredNavigation.map((item) => (
               <Link
                 key={item.name}
@@ -76,7 +77,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     item.current
                       ? 'text-gray-500'
                       : 'text-gray-400 group-hover:text-gray-500',
-                    'mr-4 flex-shrink-0 h-6 w-6'
+                    'mr-4 flex-shrink-0 h-5 w-5'
                   )}
                   aria-hidden="true"
                 />
@@ -88,6 +89,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       </header>
 
       <div className="flex flex-1">
+        {/* Desktop sidebar */}
         <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:bg-white lg:pt-5 lg:pb-4">
           <div className="flex flex-col flex-1">
             <div className="flex items-center flex-shrink-0 px-4">
@@ -125,11 +127,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
         </aside>
 
+        {/* Main content */}
         <main className="flex-1 lg:pl-64">
           <div className="lg:hidden">
             <QueryBar />
           </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
             {location.pathname !== '/industry-dashboard' && (
               <button 
                 onClick={() => navigate(-1)}
@@ -140,7 +143,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               </button>
             )}
             
-            {children}
+            <div className="w-full overflow-x-hidden">
+              {children}
+            </div>
           </div>
         </main>
       </div>
