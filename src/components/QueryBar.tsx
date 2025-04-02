@@ -56,7 +56,9 @@ const QueryBar = () => {
       } else if (queryText.toLowerCase().includes('financial') || queryText.toLowerCase().includes('revenue') || queryText.toLowerCase().includes('impact')) {
         generatedResponse = `Organizations with high CX scores show on average 4.2% higher revenue growth compared to industry peers with lower scores. A 10-point improvement in CX score is projected to yield a 3.8% increase in retention and 2.5% improvement in profit margins.`;
       } else if (queryText.toLowerCase().includes('competitor') || queryText.toLowerCase().includes('competition')) {
-        generatedResponse = `The competitive landscape analysis shows that ${data.industries[1]} and ${data.industries[3]} have the most intense competition. The organization with the highest market share is ${data.competitiveLandscape[0].organization} with ${data.competitiveLandscape[0].marketShare}% market share.`;
+        // Fixed reference to market share
+        const firstCompetitor = data.competitiveLandscape[0];
+        generatedResponse = `The competitive landscape analysis shows that ${data.industries[1]} and ${data.industries[3]} have the most intense competition. The organization with the highest market share is ${firstCompetitor.organization} with ${firstCompetitor.marketShare ? firstCompetitor.marketShare.toFixed(1) : '0'}% market share.`;
       } else {
         generatedResponse = `I analyzed the CX Analytics data for your query on "${queryText}". The top-performing organization across all metrics is ${data.cxIndexData.reduce((prev, curr) => prev.cxIndex > curr.cxIndex ? prev : curr).organization} with a CX Index of ${data.cxIndexData.reduce((prev, curr) => prev.cxIndex > curr.cxIndex ? prev : curr).cxIndex.toFixed(1)}. They excel particularly in the customer support and ease of use dimensions.`;
       }
