@@ -1,127 +1,182 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Building, BarChart } from 'lucide-react';
+
+import React from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Link, useLocation } from 'react-router-dom';
-import QueryBar from '@/components/QueryBar';
+import { useMobile } from '@/hooks/use-mobile';
+import { 
+  LineChart, Home, Users, Settings, Building, TrendingUp,
+  Menu, X, ArrowLeft
+} from 'lucide-react';
+import QueryBar from './QueryBar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const [collapsed, setCollapsed] = useState(false);
-  const isMobile = useIsMobile();
+  const isMobile = useMobile();
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const navigate = useNavigate();
   const location = useLocation();
   
-  const navItems = [
-    { icon: Building, label: 'Industry Dashboard', path: '/', active: location.pathname === '/' },
-    { icon: BarChart, label: 'AT&T Organization Dashboard', path: '/organization', active: location.pathname === '/organization' || location.pathname === '/performance' || location.pathname === '/customer-insights' },
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  
+  const navigation = [
+    { name: 'Dashboard', href: '/', icon: Home, current: location.pathname === '/' },
+    { name: 'Industry Dashboard', href: '/industry-dashboard', icon: Building, current: location.pathname === '/industry-dashboard' },
+    { name: 'Organization Performance', href: '/organization', icon: LineChart, current: location.pathname === '/organization' || location.pathname === '/performance' || location.pathname === '/customer-insights' },
+    { name: 'Customer Insights', href: '/customer-insights', icon: Users, current: false },
+    { name: 'Settings', href: '/settings', icon: Settings, current: location.pathname === '/settings' },
   ];
-
-  if (isMobile) {
-    return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <header className="h-16 border-b flex items-center justify-between px-4 bg-white">
-          <div className="flex items-center">
-            <span className="font-semibold text-lg">CX Analytics</span>
-          </div>
-        </header>
-        <main className="flex-1 p-4 overflow-auto">
-          {children}
-        </main>
-      </div>
-    );
-  }
+  
+  // Only show the settings navitem on mobile, since it's in the sidebar on desktop
+  const filteredNavigation = isMobile 
+    ? navigation
+    : navigation.filter(item => item.name !== 'Settings');
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <aside 
-        className={cn(
-          "bg-white border-r transition-all duration-300 ease-in-out flex flex-col",
-          collapsed ? "w-16" : "w-64"
-        )}
-      >
-        <div className={cn(
-          "h-16 border-b flex items-center justify-between",
-          collapsed ? "px-4" : "px-6" 
-        )}>
-          {!collapsed && (
-            <span className="font-semibold text-lg animate-fade-in">CX Analytics</span>
-          )}
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Mobile Header */}
+      <header className="bg-white border-b border-gray-200 py-4 px-4 sm:px-6 lg:hidden">
+        <div className="flex items-center justify-between">
           <button 
-            onClick={() => setCollapsed(!collapsed)}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+            type="button" 
+            className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            onClick={toggleMenu}
           >
-            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-          </button>
-        </div>
-        
-        <nav className="flex-1 py-6">
-          <ul className="space-y-2 px-3">
-            {navItems.map((item, index) => (
-              <li key={index}>
-                <TooltipProvider delayDuration={collapsed ? 100 : 800}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        to={item.path}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all",
-                          item.active 
-                            ? "bg-primary text-primary-foreground" 
-                            : "hover:bg-gray-100 text-gray-700",
-                          collapsed && "justify-center"
-                        )}
-                      >
-                        <item.icon size={20} />
-                        {!collapsed && (
-                          <span className="font-medium animate-fade-in">{item.label}</span>
-                        )}
-                      </Link>
-                    </TooltipTrigger>
-                    {collapsed && (
-                      <TooltipContent side="right">
-                        {item.label}
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        
-        <div className={cn(
-          "p-4 border-t",
-          collapsed ? "flex justify-center" : ""
-        )}>
-          <div className={cn(
-            "flex items-center gap-3", 
-            collapsed ? "justify-center" : ""
-          )}>
-            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium">
-              A
-            </div>
-            {!collapsed && (
-              <div className="animate-fade-in">
-                <p className="text-sm font-medium">Alex Johnson</p>
-                <p className="text-xs text-gray-500">CX Analyst</p>
-              </div>
+            <span className="sr-only">Open menu</span>
+            {isMenuOpen ? (
+              <X className="block h-6 w-6" aria-hidden="true" />
+            ) : (
+              <Menu className="block h-6 w-6" aria-hidden="true" />
             )}
+          </button>
+          <div className="flex-1 flex justify-center">
+            <button 
+              onClick={() => navigate('/')}
+              className="flex items-center text-gray-900 font-semibold text-lg"
+            >
+              <TrendingUp className="h-6 w-6 mr-2 text-blue-600" />
+              CX Analytics
+            </button>
+          </div>
+          <div className="w-6">
+            {/* Placeholder for symmetry */}
           </div>
         </div>
-      </aside>
-      
-      <div className="flex-1 flex flex-col">
-        <header className="h-16 border-b flex items-center justify-between px-6 bg-white">
-          <div className="w-full max-w-2xl mx-auto">
+        
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <nav className="mt-4 space-y-1">
+            {filteredNavigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  item.current
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                  'group flex items-center px-2 py-2 text-base font-medium rounded-md'
+                )}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <item.icon
+                  className={cn(
+                    item.current
+                      ? 'text-gray-500'
+                      : 'text-gray-400 group-hover:text-gray-500',
+                    'mr-4 flex-shrink-0 h-6 w-6'
+                  )}
+                  aria-hidden="true"
+                />
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+        )}
+      </header>
+
+      <div className="flex flex-1">
+        {/* Sidebar for desktop */}
+        <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:bg-white lg:pt-5 lg:pb-4">
+          <div className="flex flex-col flex-1">
+            <div className="flex items-center flex-shrink-0 px-4">
+              <Link to="/" className="flex items-center">
+                <TrendingUp className="h-8 w-8 text-blue-600" />
+                <span className="ml-2 text-xl font-semibold">CX Analytics</span>
+              </Link>
+            </div>
+            <nav className="mt-8 flex-1 flex flex-col overflow-y-auto">
+              <div className="px-2 space-y-1">
+                {filteredNavigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
+                      item.current
+                        ? 'bg-gray-100 text-gray-900'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                      'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
+                    )}
+                  >
+                    <item.icon
+                      className={cn(
+                        item.current
+                          ? 'text-blue-600'
+                          : 'text-gray-400 group-hover:text-gray-500',
+                        'mr-3 flex-shrink-0 h-5 w-5'
+                      )}
+                      aria-hidden="true"
+                    />
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </nav>
+            <div className="px-2 pt-2 pb-4 border-t border-gray-200">
+              <Link
+                to="/settings"
+                className={cn(
+                  location.pathname === '/settings'
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                  'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
+                )}
+              >
+                <Settings
+                  className={cn(
+                    location.pathname === '/settings'
+                      ? 'text-blue-600'
+                      : 'text-gray-400 group-hover:text-gray-500',
+                    'mr-3 flex-shrink-0 h-5 w-5'
+                  )}
+                  aria-hidden="true"
+                />
+                Settings
+              </Link>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <main className="flex-1 lg:pl-64">
+          <div className="lg:hidden">
             <QueryBar />
           </div>
-        </header>
-        <main className="flex-1 p-6 overflow-auto">
-          {children}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {/* Mobile Back button for deeper pages */}
+            {location.pathname !== '/' && (
+              <button 
+                onClick={() => navigate(-1)}
+                className="mb-4 lg:hidden inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back
+              </button>
+            )}
+            
+            {children}
+          </div>
         </main>
       </div>
     </div>

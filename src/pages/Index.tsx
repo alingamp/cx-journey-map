@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAllData } from '@/services/mockData';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Building, ArrowRight } from 'lucide-react';
 import MarketOverviewTab from '@/components/dashboard/MarketOverviewTab';
 import IndustryOverview from '@/components/dashboard/IndustryOverview';
 import IndustryCharts from '@/components/dashboard/IndustryCharts';
@@ -63,20 +65,89 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight animate-fade-in">Industry Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight animate-fade-in">CX Analytics Dashboard</h1>
         <p className="text-gray-500 mt-1 animate-fade-in" style={{ animationDelay: '100ms' }}>
-          Industry analysis and competitive insights
+          Overview of industry and organizational performance
         </p>
+      </div>
+
+      {/* Summary Cards with Links to Main Sections */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Card className="transition hover:shadow-md">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Industry Dashboard</CardTitle>
+            <CardDescription>
+              Comprehensive industry analysis
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-sm text-muted-foreground">
+              View industry trends, competitive landscape, and CX factors in one dashboard
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Link to="/industry-dashboard">
+              <Button variant="outline" className="w-full flex items-center justify-between">
+                <span>View Dashboard</span>
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+        
+        <Card className="transition hover:shadow-md">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Organization Performance</CardTitle>
+            <CardDescription>
+              Company-specific analysis
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-sm text-muted-foreground">
+              Detailed performance metrics for specific organizations
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Link to="/organization">
+              <Button variant="outline" className="w-full flex items-center justify-between">
+                <span>View Performance</span>
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+        
+        <Card className="transition hover:shadow-md">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Customer Insights</CardTitle>
+            <CardDescription>
+              Voice of customer analytics
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-sm text-muted-foreground">
+              Survey responses, feedback trends, and customer sentiment
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Link to="/customer-insights">
+              <Button variant="outline" className="w-full flex items-center justify-between">
+                <span>View Insights</span>
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
       </div>
       
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Building className="h-6 w-6 text-primary" />
-            Industry Analysis
+            Quick Industry Analysis
           </h2>
           <p className="text-muted-foreground">
-            Analyze industry competition, CX trends, and factor importance
+            Select an industry to view its overview
           </p>
         </div>
         
@@ -126,38 +197,14 @@ const Dashboard = () => {
               selectedIndustry={selectedIndustry} 
             />
             
-            {selectedIndustry === "Telecom" && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Telecom Industry Leaders</CardTitle>
-                  <CardDescription>
-                    Key players in the telecommunications market
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {data.organizations["Telecom"].slice(0, 6).map((org: string, index: number) => {
-                      const orgData = data.cxIndexData.find((item: any) => 
-                        item.organization === org && item.industry === "Telecom"
-                      );
-                      return (
-                        <div key={index} className="flex items-center p-3 border rounded-md">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                            <Building className="h-4 w-4 text-primary" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{org}</p>
-                            <p className="text-sm text-muted-foreground">
-                              CX Index: {orgData ? orgData.cxIndex : 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <div className="flex justify-end">
+              <Link to="/industry-dashboard">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <span>View Full Industry Dashboard</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </TabsContent>
         
@@ -165,16 +212,30 @@ const Dashboard = () => {
         <TabsContent value="trends">
           <div className="space-y-6">
             <IndustryStatCards selectedIndustryTrend={selectedIndustryTrend} />
-            <IndustryCharts 
-              competitiveLandscape={data.competitiveLandscape} 
-              selectedIndustry={selectedIndustry} 
-            />
+            <div className="flex justify-end">
+              <Link to="/industry-dashboard?tab=trends">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <span>View Detailed Trend Analysis</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </TabsContent>
         
         {/* Competitive Landscape Tab */}
         <TabsContent value="competition">
-          <MarketOverviewTab data={data} />
+          <div className="space-y-6">
+            <MarketOverviewTab data={data} />
+            <div className="flex justify-end">
+              <Link to="/industry-dashboard?tab=competition">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <span>View Full Competitive Analysis</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </DashboardLayout>
