@@ -84,6 +84,11 @@ const ComparisonGraphs: React.FC<ComparisonGraphsProps> = ({ data }) => {
     return colors[index % colors.length];
   };
 
+  // Custom tooltip formatter to show company name instead of "CX Index"
+  const customTooltipFormatter = (value: number, name: string) => {
+    return [`${value.toFixed(1)}`, name];
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6 mb-6">
       <Card>
@@ -113,7 +118,7 @@ const ComparisonGraphs: React.FC<ComparisonGraphsProps> = ({ data }) => {
                 />
                 <YAxis domain={[60, 90]} tickCount={7} />
                 <Tooltip
-                  formatter={(value: number) => [`${value.toFixed(1)}`, "CX Index"]}
+                  formatter={customTooltipFormatter}
                   labelFormatter={(label) => `${label}`}
                 />
                 <Legend 
