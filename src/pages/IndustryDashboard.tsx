@@ -22,8 +22,7 @@ const IndustryDashboard = () => {
         title: "Demo Limitation",
         description: "This is a demo focusing on the Telecom industry only",
         variant: "default",
-        duration: 5000,
-        icon: <Info className="h-5 w-5 text-blue-500" />
+        duration: 5000
       });
       return;
     }
