@@ -40,6 +40,7 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
             <SurveyResponseTable 
               surveys={surveys} 
               onViewSurvey={onViewSurvey} 
+              surveysPerPage={30} // Increased from default 20 to 30
             />
           </div>
         </CardContent>

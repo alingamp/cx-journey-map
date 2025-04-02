@@ -122,9 +122,9 @@ export const generateCustomerSurveys = (count: number, industries: string[], org
   return surveys;
 };
 
-// Get all survey data
+// Get all survey data - increased from 300 to 400 to provide more examples
 export const getCustomerSurveys = (industries: string[], organizations: {[key: string]: string[]}): CustomerSurvey[] => {
-  return generateCustomerSurveys(300, industries, organizations);
+  return generateCustomerSurveys(400, industries, organizations);
 };
 
 // Calculate aggregated survey statistics

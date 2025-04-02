@@ -11,14 +11,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface SurveyResponseTableProps {
   surveys: CustomerSurvey[];
   onViewSurvey: (survey: CustomerSurvey) => void;
+  surveysPerPage?: number;
 }
 
-const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({ surveys, onViewSurvey }) => {
+const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({ 
+  surveys, 
+  onViewSurvey,
+  surveysPerPage = 20 // Default to 20 if not specified
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(0);
   const [selectedType, setSelectedType] = useState<string>('all-types');
   const [selectedChannel, setSelectedChannel] = useState<string>('all-channels');
-  const surveysPerPage = 20; // Increased from 10 to 20
   
   // Filter surveys based on search query and type
   const filteredSurveys = surveys.filter(survey => {
