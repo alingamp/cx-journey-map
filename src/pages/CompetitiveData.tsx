@@ -7,9 +7,19 @@ import { PieChart as PieChartIcon, BarChart2, TrendingUp, Target, Shield } from 
 import CXIndexSummary from '@/components/CXIndexSummary';
 import CompetitiveLandscape from '@/components/CompetitiveLandscape';
 import CorrelationAnalysis from '@/components/CorrelationAnalysis';
-import { getAllData, generateCompetitiveLandscape, CXIndexData, CompetitiveLandscape as CompetitiveLandscapeType, CorrelationData } from '@/services/mockData';
+import { 
+  getAllData, 
+  generateCompetitiveLandscape, 
+  CXIndexData as ImportedCXIndexData, 
+  CompetitiveLandscape as CompetitiveLandscapeType, 
+  CorrelationData as ImportedCorrelationData 
+} from '@/services/mockData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label, ReferenceLine } from 'recharts';
+
+// Use the imported interfaces instead of redefining them
+type CXIndexData = ImportedCXIndexData;
+type CorrelationData = ImportedCorrelationData;
 
 const CompetitiveData = () => {
   const data = getAllData();
