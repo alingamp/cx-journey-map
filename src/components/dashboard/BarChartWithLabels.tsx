@@ -1,13 +1,10 @@
 
 import React from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 
 interface IndustryTrend {
   industry: string;
-  currentYear: number;
-  lastYear: number;
   change: number;
-  percentChange: number;
   isImproving: boolean;
 }
 
@@ -20,15 +17,15 @@ const BarChartWithLabels: React.FC<BarChartWithLabelsProps> = ({ data }) => {
   
   return (
     <div className="space-y-4">
-      {sortedData.map((item) => (
+      {sortedData.map((item, index) => (
         <div key={item.industry} className="space-y-1">
           <div className="flex justify-between text-sm">
             <span>{item.industry}</span>
             <span className="font-medium flex items-center">
               {item.isImproving ? (
-                <ChevronUp className="h-4 w-4 mr-1 text-green-500" />
+                <ArrowUp className="h-4 w-4 mr-1 text-green-500" />
               ) : (
-                <ChevronDown className="h-4 w-4 mr-1 text-red-500" />
+                <ArrowDown className="h-4 w-4 mr-1 text-red-500" />
               )}
               {item.change}
             </span>

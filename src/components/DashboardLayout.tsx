@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   LineChart, Home, Users, Settings, Building, TrendingUp,
   Menu, X, ArrowLeft
@@ -14,7 +13,7 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,14 +28,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     { name: 'Settings', href: '/settings', icon: Settings, current: location.pathname === '/settings' },
   ];
   
-  // Only show the settings navitem on mobile, since it's in the sidebar on desktop
   const filteredNavigation = isMobile 
     ? navigation
     : navigation.filter(item => item.name !== 'Settings');
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Mobile Header */}
       <header className="bg-white border-b border-gray-200 py-4 px-4 sm:px-6 lg:hidden">
         <div className="flex items-center justify-between">
           <button 
@@ -65,7 +62,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
         </div>
         
-        {/* Mobile menu */}
         {isMenuOpen && (
           <nav className="mt-4 space-y-1">
             {filteredNavigation.map((item) => (
@@ -97,7 +93,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar for desktop */}
         <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:bg-white lg:pt-5 lg:pb-4">
           <div className="flex flex-col flex-1">
             <div className="flex items-center flex-shrink-0 px-4">
@@ -158,13 +153,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 lg:pl-64">
           <div className="lg:hidden">
             <QueryBar />
           </div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            {/* Mobile Back button for deeper pages */}
             {location.pathname !== '/' && (
               <button 
                 onClick={() => navigate(-1)}

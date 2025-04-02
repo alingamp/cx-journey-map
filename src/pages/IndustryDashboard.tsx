@@ -4,20 +4,15 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Building, LineChart, BarChart, TrendingUp, ArrowUp, ArrowDown, 
-  ChartBar
-} from 'lucide-react';
+import { Building, LineChart, BarChart, TrendingUp } from 'lucide-react';
 import { getAllData, generateCompetitiveLandscape } from '@/services/mockData';
-import IndustryLoadings from '@/components/IndustryLoadings';
-import CompetitiveLandscape from '@/components/CompetitiveLandscape';
-import IndustryFocusChart from '@/components/charts/IndustryFocusChart';
-import CompetitiveIntensityChart from '@/components/charts/CompetitiveIntensityChart';
-import MarketOverviewTab from '@/components/dashboard/MarketOverviewTab';
 import IndustryOverview from '@/components/dashboard/IndustryOverview';
 import IndustryStatCards from '@/components/dashboard/IndustryStatCards';
 import IndustryCharts from '@/components/dashboard/IndustryCharts';
 import IndustryFactors from '@/components/dashboard/IndustryFactors';
+import MarketOverviewTab from '@/components/dashboard/MarketOverviewTab';
+import TelecomCompaniesSummary from '@/components/dashboard/TelecomCompaniesSummary';
+import IndustryBarChart from '@/components/dashboard/IndustryBarChart';
 
 const IndustryDashboard = () => {
   const [data, setData] = useState<any>(null);
@@ -133,55 +128,7 @@ const IndustryDashboard = () => {
       
       {/* Telecom Companies Summary Section - Only shown when Telecom is selected */}
       {selectedIndustry === "Telecom" && (
-        <div className="mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ChartBar className="h-5 w-5 text-primary" />
-                Telecom Companies Performance Summary
-              </CardTitle>
-              <CardDescription>
-                Key metrics for all telecom companies in the analysis
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Company</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">CX Index</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Direct Feedback</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Passive Metrics</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Trend</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {telecomMetrics.map((company, index) => (
-                      <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
-                        <td className="py-3 px-4 font-medium">{company.organization}</td>
-                        <td className="py-3 px-4 text-center">{company.cxIndex}</td>
-                        <td className="py-3 px-4 text-center">{company.directFeedback}</td>
-                        <td className="py-3 px-4 text-center">{company.passiveMetrics}</td>
-                        <td className="py-3 px-4">
-                          <div className="flex justify-center">
-                            {company.trend === 'up' ? (
-                              <ArrowUp className="text-green-500" size={18} />
-                            ) : company.trend === 'down' ? (
-                              <ArrowDown className="text-red-500" size={18} />
-                            ) : (
-                              <div className="w-4 h-1 bg-gray-300 rounded-full"></div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <TelecomCompaniesSummary telecomMetrics={telecomMetrics} />
       )}
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
@@ -268,19 +215,7 @@ const IndustryDashboard = () => {
               selectedIndustry={selectedIndustry} 
             />
             
-            <Card>
-              <CardHeader>
-                <CardTitle>CX Trends Across Industries</CardTitle>
-                <CardDescription>
-                  Year-over-year change in Customer Experience Index
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-96">
-                  <BarChartWithLabels data={cxIndexTrend} />
-                </div>
-              </CardContent>
-            </Card>
+            <IndustryBarChart data={cxIndexTrend} />
           </div>
         </TabsContent>
         
@@ -295,39 +230,6 @@ const IndustryDashboard = () => {
         </TabsContent>
       </Tabs>
     </DashboardLayout>
-  );
-};
-
-const BarChartWithLabels = ({ data }: { data: any[] }) => {
-  const sortedData = [...data].sort((a, b) => b.change - a.change);
-  
-  return (
-    <div className="space-y-4">
-      {sortedData.map((item, index) => (
-        <div key={item.industry} className="space-y-1">
-          <div className="flex justify-between text-sm">
-            <span>{item.industry}</span>
-            <span className="font-medium flex items-center">
-              {item.isImproving ? (
-                <ArrowUp className="h-4 w-4 mr-1 text-green-500" />
-              ) : (
-                <ArrowDown className="h-4 w-4 mr-1 text-red-500" />
-              )}
-              {item.change}
-            </span>
-          </div>
-          <div className="h-2 w-full bg-secondary rounded-full overflow-hidden relative">
-            <div 
-              className={`h-full rounded-full absolute top-0 ${item.isImproving ? 'bg-green-500 left-1/2' : 'bg-red-500 right-1/2'}`}
-              style={{ 
-                width: `${Math.abs(item.change) * 5}%`,
-                maxWidth: '50%'
-              }}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
   );
 };
 
