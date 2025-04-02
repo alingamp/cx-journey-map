@@ -5,20 +5,37 @@ import BarChartWithLabels from './BarChartWithLabels';
 
 interface IndustryBarChartProps {
   data: any[];
+  title?: string;
+  description?: string;
+  valueLabel?: string;
+  secondaryValueLabel?: string;
+  showTrend?: boolean;
 }
 
-const IndustryBarChart: React.FC<IndustryBarChartProps> = ({ data }) => {
+const IndustryBarChart: React.FC<IndustryBarChartProps> = ({ 
+  data, 
+  title = "CX Trends Across Industries",
+  description = "Year-over-year change in Customer Experience Index",
+  valueLabel,
+  secondaryValueLabel,
+  showTrend = false
+}) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>CX Trends Across Industries</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>
-          Year-over-year change in Customer Experience Index
+          {description}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-96">
-          <BarChartWithLabels data={data} />
+        <div className="h-96 overflow-y-auto pr-2">
+          <BarChartWithLabels 
+            data={data} 
+            valueLabel={valueLabel} 
+            secondaryValueLabel={secondaryValueLabel}
+            showTrend={showTrend} 
+          />
         </div>
       </CardContent>
     </Card>

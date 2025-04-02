@@ -1,23 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building, LineChart, BarChart, TrendingUp } from 'lucide-react';
+import { Building } from 'lucide-react';
 import { getAllData, generateCompetitiveLandscape } from '@/services/mockData';
-import IndustryOverview from '@/components/dashboard/IndustryOverview';
-import IndustryStatCards from '@/components/dashboard/IndustryStatCards';
-import IndustryCharts from '@/components/dashboard/IndustryCharts';
-import IndustryFactors from '@/components/dashboard/IndustryFactors';
-import MarketOverviewTab from '@/components/dashboard/MarketOverviewTab';
+import SummaryCards from '@/components/dashboard/SummaryCards';
 import TelecomCompaniesSummary from '@/components/dashboard/TelecomCompaniesSummary';
 import IndustryBarChart from '@/components/dashboard/IndustryBarChart';
+import ComparisonGraphs from '@/components/dashboard/ComparisonGraphs';
 
 const IndustryDashboard = () => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<string>('overview');
   const [selectedIndustry, setSelectedIndustry] = useState<string>("Telecom");
   
   useEffect(() => {
@@ -46,26 +40,35 @@ const IndustryDashboard = () => {
   // Generate competitive landscape data for the selected industry
   const competitiveLandscape = generateCompetitiveLandscape(selectedIndustry);
   
-  // Calculate industry metrics for selected industry
+  // Calculate summary data for the cards
+  const cxIndexData = data.cxIndexData.filter((item: any) => item.industry === selectedIndustry);
+  const avgCXScore = parseFloat((cxIndexData.reduce((acc: number, item: any) => acc + item.cxIndex, 0) / cxIndexData.length).toFixed(1));
+  
+  // Find top performer
+  const topPerformer = [...cxIndexData].sort((a: any, b: any) => b.cxIndex - a.cxIndex)[0];
+  
+  // Find bottom performer
+  const bottomPerformer = [...cxIndexData].sort((a: any, b: any) => a.cxIndex - b.cxIndex)[0];
+  
+  // Find most improved
+  const mostImproved = [...cxIndexData].sort((a: any, b: any) => 
+    (a.cxIndex - a.lastYearIndex) - (b.cxIndex - b.lastYearIndex)
+  ).reverse()[0];
+  
+  // Calculate industry metrics for trend chart
   const cxIndexTrend = data.industries.map((industry: string) => {
     const industryData = data.cxIndexData.filter((item: any) => item.industry === industry);
     const average = parseFloat((industryData.reduce((acc: number, item: any) => acc + item.cxIndex, 0) / industryData.length).toFixed(1));
     const lastYearAverage = parseFloat((industryData.reduce((acc: number, item: any) => acc + item.lastYearIndex, 0) / industryData.length).toFixed(1));
     const change = parseFloat((average - lastYearAverage).toFixed(1));
-    const percentChange = parseFloat(((change / lastYearAverage) * 100).toFixed(1));
     
     return {
-      industry,
-      currentYear: average,
-      lastYear: lastYearAverage,
-      change,
-      percentChange,
-      isImproving: change > 0
+      label: industry,
+      value: change,
+      isPositive: change > 0
     };
   });
   
-  const selectedIndustryTrend = cxIndexTrend.find(item => item.industry === selectedIndustry) || null;
-
   // Get telecom-specific companies and their metrics
   const telecomCompanies = data.organizations["Telecom"] || [];
   const telecomMetrics = telecomCompanies.map((company: string) => {
@@ -91,6 +94,14 @@ const IndustryDashboard = () => {
     }
     return 0;
   });
+
+  // Prepare data for comparison bar chart
+  const comparisonData = telecomMetrics.map(company => ({
+    label: company.organization,
+    value: typeof company.cxIndex === 'number' ? company.cxIndex : 0,
+    secondaryValue: company.directFeedback,
+    isPositive: company.trend === 'up'
+  }));
   
   return (
     <DashboardLayout>
@@ -100,6 +111,14 @@ const IndustryDashboard = () => {
           Comprehensive industry analysis and competitive insights
         </p>
       </div>
+      
+      {/* Summary Cards Section - Moved to the top */}
+      <SummaryCards
+        avgCXScore={avgCXScore}
+        topPerformer={topPerformer}
+        bottomPerformer={bottomPerformer}
+        mostImproved={mostImproved}
+      />
       
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         <div>
@@ -131,104 +150,29 @@ const IndustryDashboard = () => {
         <TelecomCompaniesSummary telecomMetrics={telecomMetrics} />
       )}
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <div className="border-b">
-          <TabsList className="bg-transparent p-0 h-auto">
-            <TabsTrigger 
-              value="overview" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 px-4"
-            >
-              Industry Overview
-            </TabsTrigger>
-            <TabsTrigger 
-              value="trends" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 px-4"
-            >
-              Trend Analysis
-            </TabsTrigger>
-            <TabsTrigger 
-              value="competition" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 px-4"
-            >
-              Competitive Landscape
-            </TabsTrigger>
-            <TabsTrigger 
-              value="factors" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 px-4"
-            >
-              CX Factors
-            </TabsTrigger>
-          </TabsList>
+      {/* Comparison Graphs - Replace Tabs */}
+      <div className="space-y-6 mb-6">
+        <ComparisonGraphs data={telecomMetrics} />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <IndustryBarChart 
+            title="Company CX Index Comparison" 
+            description="CX Index scores for companies in the selected industry"
+            data={comparisonData}
+            valueLabel="CX Index"
+            secondaryValueLabel="Direct Feedback"
+            showTrend={false}
+          />
+          
+          <IndustryBarChart 
+            title="Industry CX Trends" 
+            description="Year-over-year change in Customer Experience Index"
+            data={cxIndexTrend}
+            valueLabel="Change"
+            showTrend={true}
+          />
         </div>
-        
-        {/* Industry Overview Tab */}
-        <TabsContent value="overview">
-          <div className="grid grid-cols-1 gap-6">
-            {data.industryHistoricalData && (
-              <IndustryOverview 
-                data={data.industryHistoricalData} 
-                selectedIndustry={selectedIndustry} 
-              />
-            )}
-            
-            {selectedIndustry === "Telecom" && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Telecom Industry Leaders</CardTitle>
-                  <CardDescription>
-                    Key players in the telecommunications market
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {data.organizations["Telecom"].slice(0, 6).map((org: string, index: number) => {
-                      const orgData = data.cxIndexData.find((item: any) => 
-                        item.organization === org && item.industry === "Telecom"
-                      );
-                      return (
-                        <div key={index} className="flex items-center p-3 border rounded-md">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                            <Building className="h-4 w-4 text-primary" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{org}</p>
-                            <p className="text-sm text-muted-foreground">
-                              CX Index: {orgData ? orgData.cxIndex : 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
-        
-        {/* Trends Tab */}
-        <TabsContent value="trends">
-          <div className="space-y-6">
-            <IndustryStatCards selectedIndustryTrend={selectedIndustryTrend} />
-            <IndustryCharts 
-              competitiveLandscape={competitiveLandscape} 
-              selectedIndustry={selectedIndustry} 
-            />
-            
-            <IndustryBarChart data={cxIndexTrend} />
-          </div>
-        </TabsContent>
-        
-        {/* Competitive Landscape Tab */}
-        <TabsContent value="competition">
-          <MarketOverviewTab data={data} />
-        </TabsContent>
-        
-        {/* CX Factors Tab */}
-        <TabsContent value="factors">
-          <IndustryFactors data={data} />
-        </TabsContent>
-      </Tabs>
+      </div>
     </DashboardLayout>
   );
 };
