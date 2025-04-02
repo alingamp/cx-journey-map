@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -7,10 +8,13 @@ import { TrendingUp, Activity } from 'lucide-react';
 interface CorrelationData {
   industry: string;
   organization: string;
-  cxIndex: number;
-  financialMetric: string;
-  value: number;
-  potential: number;
+  dimension1: string;
+  dimension2: string;
+  correlation: number;
+  cxIndex?: number;  // Made optional to match the imported type
+  financialMetric?: string;
+  value?: number;
+  potential?: number;
 }
 
 interface CorrelationAnalysisProps {
