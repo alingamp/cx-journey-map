@@ -3,9 +3,10 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import IndustryFocusChart from '@/components/charts/IndustryFocusChart';
 import CompetitiveIntensityChart from '@/components/charts/CompetitiveIntensityChart';
+import { CompetitiveLandscape } from '@/services/mockData';
 
 interface IndustryChartsProps {
-  competitiveLandscape: any[];
+  competitiveLandscape: CompetitiveLandscape[];
   selectedIndustry: string;
 }
 

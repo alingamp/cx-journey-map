@@ -7,7 +7,7 @@ import { PieChart as PieChartIcon, BarChart2, TrendingUp, Target, Shield } from 
 import CXIndexSummary from '@/components/CXIndexSummary';
 import CompetitiveLandscape from '@/components/CompetitiveLandscape';
 import CorrelationAnalysis from '@/components/CorrelationAnalysis';
-import { getAllData, generateCompetitiveLandscape } from '@/services/mockData';
+import { getAllData, generateCompetitiveLandscape, CXIndexData, CompetitiveLandscape as CompetitiveLandscapeType, CorrelationData } from '@/services/mockData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label, ReferenceLine } from 'recharts';
 

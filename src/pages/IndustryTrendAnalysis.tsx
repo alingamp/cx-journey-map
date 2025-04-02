@@ -1,13 +1,12 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart as LineChartIcon, TrendingUp, Building, ArrowUp, ArrowDown } from 'lucide-react';
-import { getAllData, generateCompetitiveLandscape } from '@/services/mockData';
+import { getAllData, generateCompetitiveLandscape, CompetitiveLandscape } from '@/services/mockData';
 import IndustryLoadings from '@/components/IndustryLoadings';
-import CompetitiveLandscape from '@/components/CompetitiveLandscape';
+import CompetitiveLandscapeComponent from '@/components/CompetitiveLandscape';
 import IndustryFocusChart from '@/components/charts/IndustryFocusChart';
 import CompetitiveIntensityChart from '@/components/charts/CompetitiveIntensityChart';
 
@@ -131,7 +130,7 @@ const IndustryTrendAnalysis = () => {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
-              <CompetitiveLandscape 
+              <CompetitiveLandscapeComponent 
                 data={competitiveLandscape}
                 industries={data.industries}
               />

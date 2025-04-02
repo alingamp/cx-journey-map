@@ -4,18 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart as LineChartIcon, BarChart2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
-interface LandscapeData {
-  industry: string;
-  year: number;
-  competitiveIntensity: number;
-  experientialFocus: number;
-  commodityFocus: number;
-  organizationCount: number;
-}
+import { CompetitiveLandscape as CompetitiveLandscapeType } from '@/services/mockData';
 
 interface CompetitiveLandscapeProps {
-  data: LandscapeData[];
+  data: CompetitiveLandscapeType[];
   industries: string[];
 }
 
@@ -37,11 +29,17 @@ const CompetitiveLandscape: React.FC<CompetitiveLandscapeProps> = ({ data, indus
     }
   };
   
-  // Filter data for selected industries
-  const filteredData = data.filter(item => selectedIndustries.includes(item.industry));
+  // Filter data for selected industries and only use entries with year data
+  const filteredData = data.filter(item => 
+    selectedIndustries.includes(item.industry) && 
+    item.year !== undefined && 
+    item.experientialFocus !== undefined
+  );
   
   // Process data for the chart, grouping by year
   const chartData = filteredData.reduce((result: any[], item) => {
+    if (!item.year) return result;
+    
     // Find if we already have this year in the result
     const yearEntry = result.find(entry => entry.year === item.year);
     
@@ -93,7 +91,12 @@ const CompetitiveLandscape: React.FC<CompetitiveLandscapeProps> = ({ data, indus
     'Insurance': '#f59e0b',
     'Healthcare': '#8b5cf6',
     'Telecom': '#ec4899',
-    'Retail/E-commerce': '#f43f5e'
+    'Retail/E-commerce': '#f43f5e',
+    'Retail': '#f43f5e',
+    'Banking': '#10b981',
+    'Travel': '#06b6d4',
+    'Utilities': '#f59e0b',
+    'Technology': '#4f46e5'
   };
   
   return (
@@ -185,10 +188,10 @@ const CompetitiveLandscape: React.FC<CompetitiveLandscapeProps> = ({ data, indus
                     <span>Hotel industry shows strongest shift toward experience-based competition</span>
                   </li>
                 )}
-                {selectedIndustries.includes('Retail/E-commerce') && (
+                {selectedIndustries.includes('Retail') && (
                   <li className="flex items-center">
-                    <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: industryColors['Retail/E-commerce'] }}></span>
-                    <span>Retail/E-commerce rapidly increasing experiential focus since 2020</span>
+                    <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: industryColors['Retail'] }}></span>
+                    <span>Retail rapidly increasing experiential focus since 2020</span>
                   </li>
                 )}
                 {selectedIndustries.includes('Telecom') && (

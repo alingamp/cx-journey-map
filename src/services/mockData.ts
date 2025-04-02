@@ -1,3 +1,4 @@
+
 import { faker } from '@faker-js/faker';
 
 // Types
@@ -7,7 +8,32 @@ export interface CXIndexData {
   cxIndex: number;
   lastYearIndex: number;
   isImproving: boolean;
-  rank?: number;
+  rank?: number;  // Making rank optional to resolve the type error
+}
+
+export interface CompetitiveLandscape {
+  industry: string;
+  organization?: string;
+  metric?: string;
+  score?: number;
+  marketShare?: number;
+  year?: number;
+  competitiveIntensity?: number;
+  experientialFocus?: number;
+  commodityFocus?: number;
+  organizationCount?: number;
+}
+
+export interface CorrelationData {
+  industry: string;
+  organization: string;
+  dimension1: string;
+  dimension2: string;
+  correlation: number;
+  cxIndex?: number;  // Making these properties optional to match
+  financialMetric?: string;
+  value?: number;
+  potential?: number;
 }
 
 interface IndustryLoading {
@@ -34,31 +60,6 @@ interface PassiveMetric {
   industry: string;
   metric: string;
   score: number;
-}
-
-export interface CorrelationData {
-  industry: string;
-  organization: string;
-  dimension1: string;
-  dimension2: string;
-  correlation: number;
-  cxIndex?: number;
-  financialMetric?: string;
-  value?: number;
-  potential?: number;
-}
-
-export interface CompetitiveLandscape {
-  industry: string;
-  organization: string;
-  metric: string;
-  score: number;
-  marketShare?: number;
-  year?: number;
-  competitiveIntensity?: number;
-  experientialFocus?: number;
-  commodityFocus?: number;
-  organizationCount?: number;
 }
 
 interface FinancialImpact {
