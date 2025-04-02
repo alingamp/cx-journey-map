@@ -1,17 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAllData } from '@/services/mockData';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { Building, TrendingUp, BarChart as BarChartIcon, MessageCircle, Activity, LineChart as LineChartIcon } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
-import SurveyDimensionsChart from '@/components/SurveyDimensionsChart';
-import SurveyResponseTable from '@/components/SurveyResponseTable';
-import SurveyDetailDialog from '@/components/SurveyDetailDialog';
 import { getCustomerSurveys, CustomerSurvey } from '@/services/customerSurveyData';
+import SurveyDetailDialog from '@/components/SurveyDetailDialog';
+import PerformanceHeader from '@/components/performance/PerformanceHeader';
+import PerformanceSummaryCards from '@/components/performance/PerformanceSummaryCards';
+import PerformanceOverviewTab from '@/components/performance/PerformanceOverviewTab';
+import CustomerSurveysTab from '@/components/performance/CustomerSurveysTab';
+import PassiveMetricsTab from '@/components/performance/PassiveMetricsTab';
 
 const Performance = () => {
   const [data, setData] = useState<any>(null);
@@ -38,11 +36,6 @@ const Performance = () => {
   }, []);
   
   const handleOrgChange = (value: string) => {
-    // Only for display purposes - don't actually change the organization
-    if (value !== "AT&T") {
-      toast.info("This is a demo focusing on AT&T data only");
-      return;
-    }
     setSelectedOrg(value);
   };
   
@@ -115,99 +108,13 @@ const Performance = () => {
   
   return (
     <DashboardLayout>
-      <div className="mb-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Building className="h-6 w-6 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight animate-fade-in">Organization Performance Dashboard</h1>
-              <p className="text-gray-500 animate-fade-in" style={{ animationDelay: '100ms' }}>
-                View detailed performance metrics and analytics
-              </p>
-            </div>
-          </div>
-          
-          <div className="w-full md:w-64">
-            <Select value={selectedOrg} onValueChange={handleOrgChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Organization" />
-              </SelectTrigger>
-              <SelectContent>
-                {data.organizations["Telecom"].map((org: string) => (
-                  <SelectItem key={org} value={org}>{org}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
+      <PerformanceHeader 
+        selectedOrg={selectedOrg} 
+        handleOrgChange={handleOrgChange} 
+        organizations={data.organizations["Telecom"]} 
+      />
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">CX Index</p>
-                <p className="text-3xl font-bold">{attData ? attData.cxIndex.toFixed(1) : 'N/A'}</p>
-              </div>
-              <div className="p-2 bg-blue-100 rounded-full text-blue-600">
-                <BarChartIcon size={20} />
-              </div>
-            </div>
-            <div className="flex items-center mt-2">
-              <Badge variant={attData && attData.isImproving ? "success" : "destructive"} className="flex items-center gap-1">
-                <TrendingUp size={14} />
-                {attData ? (attData.cxIndex - attData.lastYearIndex).toFixed(1) : 'N/A'}
-              </Badge>
-              <span className="text-xs text-gray-500 ml-2">vs. last year</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Direct Feedback Score</p>
-                <p className="text-3xl font-bold">74.5</p>
-              </div>
-              <div className="p-2 bg-green-100 rounded-full text-green-600">
-                <MessageCircle size={20} />
-              </div>
-            </div>
-            <div className="flex items-center mt-2">
-              <Badge variant="success" className="flex items-center gap-1">
-                <TrendingUp size={14} />
-                +3.2
-              </Badge>
-              <span className="text-xs text-gray-500 ml-2">30 day trend</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Passive Metrics Score</p>
-                <p className="text-3xl font-bold">72.9</p>
-              </div>
-              <div className="p-2 bg-amber-100 rounded-full text-amber-600">
-                <Activity size={20} />
-              </div>
-            </div>
-            <div className="flex items-center mt-2">
-              <Badge variant="success" className="flex items-center gap-1">
-                <TrendingUp size={14} />
-                +2.8
-              </Badge>
-              <span className="text-xs text-gray-500 ml-2">30 day trend</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <PerformanceSummaryCards attData={attData} />
       
       <Tabs defaultValue="overview" className="mb-6">
         <TabsList>
@@ -217,246 +124,25 @@ const Performance = () => {
         </TabsList>
         
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-5 pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Trends</CardTitle>
-              <CardDescription>Key metrics over the past year</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={performanceTrendData}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="cxIndex" stroke="#4f46e5" strokeWidth={2} dot={{ r: 4 }} name="CX Index" />
-                    <Line type="monotone" dataKey="directFeedback" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} name="Direct Feedback" />
-                    <Line type="monotone" dataKey="passiveMetrics" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} name="Passive Metrics" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Card>
-              <CardHeader>
-                <CardTitle>CX Factor Strength</CardTitle>
-                <CardDescription>AT&T performance by CX dimension</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      layout="vertical"
-                      data={data.cxDimensions.map((dim: string) => ({
-                        dimension: dim,
-                        score: 40 + Math.random() * 45
-                      }))}
-                      margin={{ top: 10, right: 30, left: 80, bottom: 10 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                      <XAxis type="number" domain={[0, 100]} />
-                      <YAxis dataKey="dimension" type="category" width={70} />
-                      <Tooltip 
-                        formatter={(value: number) => [`${value.toFixed(1)}`, 'Score']}
-                        labelFormatter={(value) => `${value} Performance`}
-                      />
-                      <Bar dataKey="score" fill="#4f46e5" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Competitive Comparison</CardTitle>
-                <CardDescription>AT&T vs. top telecom competitors</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={[
-                        { name: 'Overall CX', att: 76.3, verizon: 79.1, tmobile: 77.5 },
-                        { name: 'Network Reliability', att: 82.1, verizon: 85.3, tmobile: 78.9 },
-                        { name: 'Customer Service', att: 71.5, verizon: 69.8, tmobile: 74.2 },
-                        { name: 'Value', att: 68.7, verizon: 65.3, tmobile: 75.6 },
-                        { name: 'Innovation', att: 73.9, verizon: 77.2, tmobile: 78.8 },
-                      ]}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="att" name="AT&T" fill="#4f46e5" />
-                      <Bar dataKey="verizon" name="Verizon" fill="#10b981" />
-                      <Bar dataKey="tmobile" name="T-Mobile" fill="#f59e0b" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="overview">
+          <PerformanceOverviewTab 
+            performanceTrendData={performanceTrendData} 
+            cxDimensions={data.cxDimensions}
+          />
         </TabsContent>
         
         {/* Customer Surveys Tab */}
-        <TabsContent value="surveys" className="pt-4">
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageCircle className="h-5 w-5 text-primary" />
-                Customer Survey Analytics
-              </CardTitle>
-              <CardDescription>
-                Analysis of direct customer feedback across experience dimensions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-8">
-                <h3 className="text-lg font-medium mb-4">Customer Experience Dimensions</h3>
-                <SurveyDimensionsChart data={surveyDimensionsData} />
-              </div>
-              
-              <div className="mt-8">
-                <h3 className="text-lg font-medium mb-4">Individual Survey Responses</h3>
-                <SurveyResponseTable 
-                  surveys={surveys} 
-                  onViewSurvey={handleViewSurvey} 
-                />
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="surveys">
+          <CustomerSurveysTab 
+            surveys={surveys} 
+            surveyDimensionsData={surveyDimensionsData} 
+            onViewSurvey={handleViewSurvey} 
+          />
         </TabsContent>
         
         {/* Passive Metrics Tab */}
-        <TabsContent value="passive" className="pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-primary" />
-                Passive Feedback Metrics
-              </CardTitle>
-              <CardDescription>
-                Analysis of indirect customer sentiment from digital channels
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-1">X (Twitter) Sentiment</p>
-                  <p className="text-3xl font-bold">73.1</p>
-                  <div className="flex items-center mt-1">
-                    <Badge variant="success" className="text-xs">+3.8%</Badge>
-                    <span className="text-xs text-gray-500 ml-2">30 day trend</span>
-                  </div>
-                  <p className="text-xs text-gray-600 mt-2">Based on 28.7K mentions analyzing customer experience themes</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-1">News Reports Sentiment</p>
-                  <p className="text-3xl font-bold">71.5</p>
-                  <div className="flex items-center mt-1">
-                    <Badge variant="success" className="text-xs">+1.2%</Badge>
-                    <span className="text-xs text-gray-500 ml-2">vs last month</span>
-                  </div>
-                  <p className="text-xs text-gray-600 mt-2">Analysis of 125 news articles covering AT&T's customer experience</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-1">Google Trends Sentiment</p>
-                  <p className="text-3xl font-bold">74.2</p>
-                  <div className="flex items-center mt-1">
-                    <Badge variant="success" className="text-xs">+5.5%</Badge>
-                    <span className="text-xs text-gray-500 ml-2">vs last quarter</span>
-                  </div>
-                  <p className="text-xs text-gray-600 mt-2">Based on search volume and tone analysis for AT&T related queries</p>
-                </div>
-              </div>
-              
-              <div className="mt-8 mb-6">
-                <h3 className="text-lg font-medium mb-4">Passive Metrics Trends (12-Month)</h3>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={passiveMetricsData}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis domain={[55, 80]} />
-                      <Tooltip />
-                      <Legend />
-                      <Line 
-                        type="monotone" 
-                        dataKey="xSentiment" 
-                        stroke="#1DA1F2" 
-                        strokeWidth={2}
-                        dot={{ r: 4 }}
-                        name="X Sentiment"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="newsSentiment" 
-                        stroke="#10b981" 
-                        strokeWidth={2}
-                        dot={{ r: 4 }}
-                        name="News Reports"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="googleTrends" 
-                        stroke="#4285F4" 
-                        strokeWidth={2}
-                        dot={{ r: 4 }}
-                        name="Google Trends"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-              
-              <div className="mt-8">
-                <h3 className="text-lg font-medium mb-4">Top Topics from Passive Feedback</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { topic: '5G Network Expansion', sentiment: 82, volume: 2450, trend: '+7.3%' },
-                    { topic: 'Customer Service Wait Times', sentiment: 63, volume: 1890, trend: '-1.2%' },
-                    { topic: 'Mobile App Experience', sentiment: 76, volume: 1560, trend: '+4.6%' },
-                    { topic: 'Billing Transparency', sentiment: 65, volume: 1340, trend: '+2.1%' },
-                    { topic: 'Network Reliability', sentiment: 79, volume: 1280, trend: '+5.4%' },
-                    { topic: 'Streaming Services', sentiment: 74, volume: 870, trend: '+3.8%' },
-                  ].map((item, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <div className="flex justify-between">
-                        <p className="font-medium">{item.topic}</p>
-                        <Badge variant={parseFloat(item.trend) > 0 ? "success" : "destructive"}>
-                          {item.trend}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between mt-2">
-                        <div>
-                          <p className="text-xs text-gray-500">Sentiment</p>
-                          <p className="font-medium">{item.sentiment}/100</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Volume</p>
-                          <p className="font-medium">{item.volume} mentions</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="passive">
+          <PassiveMetricsTab passiveMetricsData={passiveMetricsData} />
         </TabsContent>
       </Tabs>
       
