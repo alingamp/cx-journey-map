@@ -9,17 +9,31 @@ import { Building, TrendingUp, BarChart as BarChartIcon, MessageCircle, Activity
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import SurveyDimensionsChart from '@/components/SurveyDimensionsChart';
+import SurveyResponseTable from '@/components/SurveyResponseTable';
+import SurveyDetailDialog from '@/components/SurveyDetailDialog';
+import { getCustomerSurveys, CustomerSurvey } from '@/services/customerSurveyData';
 
 const Performance = () => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedOrg, setSelectedOrg] = useState<string>("AT&T");
+  const [surveys, setSurveys] = useState<CustomerSurvey[]>([]);
+  const [selectedSurvey, setSelectedSurvey] = useState<CustomerSurvey | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   useEffect(() => {
     // Simulate loading data from API
     setTimeout(() => {
       const mockData = getAllData();
       setData(mockData);
+      
+      // Load survey data
+      const surveyData = getCustomerSurveys(mockData.industries, mockData.organizations);
+      // Filter to only AT&T surveys for this demo
+      const attSurveys = surveyData.filter(survey => survey.organization === "AT&T");
+      setSurveys(attSurveys);
+      
       setLoading(false);
     }, 600);
   }, []);
@@ -31,6 +45,11 @@ const Performance = () => {
       return;
     }
     setSelectedOrg(value);
+  };
+  
+  const handleViewSurvey = (survey: CustomerSurvey) => {
+    setSelectedSurvey(survey);
+    setDialogOpen(true);
   };
   
   if (loading || !data) {
@@ -83,6 +102,17 @@ const Performance = () => {
     { month: 'Nov', xSentiment: 72.5, newsSentiment: 70.3, googleTrends: 72.7 },
     { month: 'Dec', xSentiment: 73.1, newsSentiment: 71.5, googleTrends: 74.2 },
   ];
+  
+  // Survey dimension data
+  const surveyDimensionsData = [
+    { dimension: 'Efficiency', score: 7.8 },
+    { dimension: 'Confidence', score: 8.2 },
+    { dimension: 'Autonomy', score: 6.9 },
+    { dimension: 'Resolution', score: 7.5 },
+    { dimension: 'Enjoyment', score: 6.7 },
+    { dimension: 'Beauty', score: 7.3 },
+    { dimension: 'Connection', score: 6.5 },
+  ].sort((a, b) => b.score - a.score);
   
   return (
     <DashboardLayout>
@@ -289,80 +319,39 @@ const Performance = () => {
                 Customer Survey Analytics
               </CardTitle>
               <CardDescription>
-                Analysis of customer feedback from surveys and direct responses
+                Analysis of direct customer feedback across experience dimensions
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-1">Overall NPS</p>
-                  <p className="text-3xl font-bold">+24</p>
-                  <p className="text-xs text-gray-500 mt-1">+3 pts vs last quarter</p>
+                  <p className="text-sm text-gray-500 mb-1">Average Satisfaction</p>
+                  <p className="text-3xl font-bold">7.3/10</p>
+                  <p className="text-xs text-gray-500 mt-1">+0.4 pts vs last quarter</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-1">CSAT Score</p>
-                  <p className="text-3xl font-bold">3.8/5</p>
-                  <p className="text-xs text-gray-500 mt-1">76% satisfaction rate</p>
+                  <p className="text-sm text-gray-500 mb-1">Direct Feedback Index</p>
+                  <p className="text-3xl font-bold">74.5/100</p>
+                  <p className="text-xs text-gray-500 mt-1">Based on all survey responses</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-1">CES Score</p>
-                  <p className="text-3xl font-bold">5.2/7</p>
-                  <p className="text-xs text-gray-500 mt-1">74% effort score</p>
+                  <p className="text-sm text-gray-500 mb-1">Expectation Gap</p>
+                  <p className="text-3xl font-bold">+0.8</p>
+                  <p className="text-xs text-gray-500 mt-1">Customer expectations exceeded</p>
                 </div>
               </div>
               
-              <h3 className="text-lg font-medium mt-8 mb-4">Recent Customer Feedback</h3>
-              
-              <div className="space-y-4">
-                {data.attData?.surveys.slice(0, 5).map((survey: any, index: number) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="inline-block px-2 py-1 text-xs rounded bg-primary/10 text-primary mb-2">
-                          {survey.surveyType} - {survey.channel}
-                        </span>
-                        <p className="text-gray-700">{survey.comment}</p>
-                        <p className="text-xs text-gray-500 mt-2">{survey.date} - {survey.region} Region</p>
-                      </div>
-                      <div className="bg-gray-100 px-2 py-1 rounded">
-                        <span className="font-medium">{survey.score}</span>
-                        <span className="text-xs text-gray-500">
-                          {survey.surveyType === 'NPS' ? '/10' : 
-                           survey.surveyType === 'CSAT' ? '/5' : 
-                           survey.surveyType === 'CES' ? '/7' : '/100'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium mb-4">Customer Experience Dimensions</h3>
+                <SurveyDimensionsChart data={surveyDimensionsData} />
               </div>
               
               <div className="mt-8">
-                <h3 className="text-lg font-medium mb-4">Survey Results by Channel</h3>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={[
-                        { channel: 'Call Center', nps: 22, csat: 3.6, ces: 5.4 },
-                        { channel: 'In-Store', nps: 28, csat: 4.1, ces: 4.9 },
-                        { channel: 'Website', nps: 21, csat: 3.7, ces: 5.3 },
-                        { channel: 'Mobile App', nps: 31, csat: 4.2, ces: 4.7 },
-                        { channel: 'Chat Support', nps: 19, csat: 3.5, ces: 5.6 },
-                      ]}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="channel" />
-                      <YAxis yAxisId="left" orientation="left" />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip />
-                      <Legend />
-                      <Bar yAxisId="left" dataKey="nps" name="NPS Score" fill="#4f46e5" />
-                      <Bar yAxisId="left" dataKey="csat" name="CSAT Score" fill="#10b981" />
-                      <Bar yAxisId="right" dataKey="ces" name="CES Score" fill="#f59e0b" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                <h3 className="text-lg font-medium mb-4">Individual Survey Responses</h3>
+                <SurveyResponseTable 
+                  surveys={surveys} 
+                  onViewSurvey={handleViewSurvey} 
+                />
               </div>
             </CardContent>
           </Card>
@@ -489,6 +478,13 @@ const Performance = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Survey Detail Dialog */}
+      <SurveyDetailDialog
+        survey={selectedSurvey}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </DashboardLayout>
   );
 };
