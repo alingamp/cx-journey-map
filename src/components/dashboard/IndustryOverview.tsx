@@ -63,13 +63,17 @@ const IndustryOverview: React.FC<IndustryOverviewProps> = ({ data, selectedIndus
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl font-semibold flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          {selectedIndustry} Overview
-        </CardTitle>
-        <CardDescription>
-          Historical performance metrics
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              {selectedIndustry} Overview
+            </CardTitle>
+            <CardDescription>
+              Historical performance metrics
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-4">
         <div className="h-[280px]">
