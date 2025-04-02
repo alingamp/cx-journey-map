@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
-  LineChart, Home, Users, Settings, Building, TrendingUp,
+  LineChart, Building, TrendingUp,
   Menu, X, ArrowLeft
 } from 'lucide-react';
 import QueryBar from './QueryBar';
@@ -21,16 +22,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: Home, current: location.pathname === '/' },
     { name: 'Industry Dashboard', href: '/industry-dashboard', icon: Building, current: location.pathname === '/industry-dashboard' },
     { name: 'Organization Performance', href: '/organization', icon: LineChart, current: location.pathname === '/organization' || location.pathname === '/performance' || location.pathname === '/customer-insights' },
-    { name: 'Customer Insights', href: '/customer-insights', icon: Users, current: false },
-    { name: 'Settings', href: '/settings', icon: Settings, current: location.pathname === '/settings' },
   ];
   
-  const filteredNavigation = isMobile 
-    ? navigation
-    : navigation.filter(item => item.name !== 'Settings');
+  const filteredNavigation = navigation;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -50,7 +46,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </button>
           <div className="flex-1 flex justify-center">
             <button 
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/industry-dashboard')}
               className="flex items-center text-gray-900 font-semibold text-lg"
             >
               <TrendingUp className="h-6 w-6 mr-2 text-blue-600" />
@@ -96,7 +92,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:bg-white lg:pt-5 lg:pb-4">
           <div className="flex flex-col flex-1">
             <div className="flex items-center flex-shrink-0 px-4">
-              <Link to="/" className="flex items-center">
+              <Link to="/industry-dashboard" className="flex items-center">
                 <TrendingUp className="h-8 w-8 text-blue-600" />
                 <span className="ml-2 text-xl font-semibold">CX Analytics</span>
               </Link>
@@ -128,28 +124,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 ))}
               </div>
             </nav>
-            <div className="px-2 pt-2 pb-4 border-t border-gray-200">
-              <Link
-                to="/settings"
-                className={cn(
-                  location.pathname === '/settings'
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                  'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
-                )}
-              >
-                <Settings
-                  className={cn(
-                    location.pathname === '/settings'
-                      ? 'text-blue-600'
-                      : 'text-gray-400 group-hover:text-gray-500',
-                    'mr-3 flex-shrink-0 h-5 w-5'
-                  )}
-                  aria-hidden="true"
-                />
-                Settings
-              </Link>
-            </div>
           </div>
         </aside>
 
@@ -158,7 +132,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <QueryBar />
           </div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            {location.pathname !== '/' && (
+            {location.pathname !== '/industry-dashboard' && (
               <button 
                 onClick={() => navigate(-1)}
                 className="mb-4 lg:hidden inline-flex items-center text-sm text-gray-500 hover:text-gray-700"

@@ -5,6 +5,18 @@ import IndustryFocusChart from '@/components/charts/IndustryFocusChart';
 import CompetitiveIntensityChart from '@/components/charts/CompetitiveIntensityChart';
 import { CompetitiveLandscape } from '@/services/mockData';
 
+// Define interfaces for the chart data to fix type errors
+interface IndustryFocusData extends CompetitiveLandscape {
+  year: number;
+  experientialFocus: number;
+  commodityFocus: number;
+}
+
+interface CompetitiveIntensityData extends CompetitiveLandscape {
+  year: number;
+  competitiveIntensity: number;
+}
+
 interface IndustryChartsProps {
   competitiveLandscape: CompetitiveLandscape[];
   selectedIndustry: string;
@@ -27,7 +39,7 @@ const IndustryCharts: React.FC<IndustryChartsProps> = ({ competitiveLandscape, s
         <CardContent>
           <div className="h-[300px]">
             {hasData ? (
-              <IndustryFocusChart data={filteredData} />
+              <IndustryFocusChart data={filteredData as IndustryFocusData[]} />
             ) : (
               <div className="h-full flex items-center justify-center text-muted-foreground">
                 No data available for selected industry
@@ -48,7 +60,7 @@ const IndustryCharts: React.FC<IndustryChartsProps> = ({ competitiveLandscape, s
         <CardContent>
           <div className="h-[300px]">
             {hasData ? (
-              <CompetitiveIntensityChart data={filteredData} />
+              <CompetitiveIntensityChart data={filteredData as CompetitiveIntensityData[]} />
             ) : (
               <div className="h-full flex items-center justify-center text-muted-foreground">
                 No data available for selected industry
