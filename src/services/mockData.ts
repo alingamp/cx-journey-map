@@ -1,12 +1,13 @@
 import { faker } from '@faker-js/faker';
 
 // Types
-interface CXIndexData {
+export interface CXIndexData {
   industry: string;
   organization: string;
   cxIndex: number;
   lastYearIndex: number;
   isImproving: boolean;
+  rank?: number;
 }
 
 interface IndustryLoading {
@@ -35,19 +36,29 @@ interface PassiveMetric {
   score: number;
 }
 
-interface CorrelationData {
+export interface CorrelationData {
   industry: string;
+  organization: string;
   dimension1: string;
   dimension2: string;
   correlation: number;
+  cxIndex?: number;
+  financialMetric?: string;
+  value?: number;
+  potential?: number;
 }
 
-interface CompetitiveLandscape {
+export interface CompetitiveLandscape {
   industry: string;
   organization: string;
   metric: string;
   score: number;
   marketShare?: number;
+  year?: number;
+  competitiveIntensity?: number;
+  experientialFocus?: number;
+  commodityFocus?: number;
+  organizationCount?: number;
 }
 
 interface FinancialImpact {
@@ -61,7 +72,7 @@ const industriesList = ["Telecom", "Banking", "Retail", "Healthcare", "Insurance
 const cxDimensionsList = ["Efficiency", "Convenience", "Personalization", "Trust/Confidence", "Emotional Connection", "Problem Resolution", "Product Quality", "Value Perception", "Clarity of Information", "Staff Knowledge", "Follow-up Care"];
 const financialMetricsList = ["Revenue Growth", "Customer Retention", "Cost Reduction", "Market Share", "Profit Margin"];
 
-// Utility function to generate random data
+// Utility function to generate random number
 const generateRandomNumber = (min: number, max: number) => {
   return parseFloat((Math.random() * (max - min) + min).toFixed(1));
 };
@@ -84,12 +95,13 @@ export const getAllData = () => {
 
   // Generate CX Index Data
   const cxIndexData: CXIndexData[] = industries.map((industry) => {
-    return organizations[industry].map((organization) => ({
+    return organizations[industry].map((organization, index) => ({
       industry,
       organization,
       cxIndex: generateRandomNumber(65, 85),
       lastYearIndex: generateRandomNumber(60, 80),
-      isImproving: Math.random() > 0.5
+      isImproving: Math.random() > 0.5,
+      rank: index + 1
     }));
   }).reduce((acc, val) => acc.concat(val), []);
 
@@ -147,40 +159,72 @@ export const getAllData = () => {
   // Generate Correlation Data
   const correlationData: CorrelationData[] = industries.map((industry) => {
     const dimensions = faker.helpers.shuffle([...cxDimensionsList]).slice(0, 3);
+    
     return [
       {
         industry,
+        organization: organizations[industry][0],
         dimension1: dimensions[0],
         dimension2: dimensions[1],
-        correlation: generateRandomNumber(0.5, 0.9)
+        correlation: generateRandomNumber(0.5, 0.9),
+        cxIndex: generateRandomNumber(65, 85),
+        financialMetric: "Revenue Growth",
+        value: generateRandomNumber(2, 8),
+        potential: generateRandomNumber(5, 15)
       },
       {
         industry,
+        organization: organizations[industry][1],
         dimension1: dimensions[1],
         dimension2: dimensions[2],
-        correlation: generateRandomNumber(0.3, 0.7)
+        correlation: generateRandomNumber(0.3, 0.7),
+        cxIndex: generateRandomNumber(65, 85),
+        financialMetric: "Customer Retention",
+        value: generateRandomNumber(3, 12),
+        potential: generateRandomNumber(8, 20)
       },
       {
         industry,
+        organization: organizations[industry][2],
         dimension1: dimensions[0],
         dimension2: dimensions[2],
-        correlation: generateRandomNumber(0.1, 0.5)
+        correlation: generateRandomNumber(0.1, 0.5),
+        cxIndex: generateRandomNumber(65, 85),
+        financialMetric: "Market Share",
+        value: generateRandomNumber(1, 5),
+        potential: generateRandomNumber(3, 10)
       }
     ];
   }).reduce((acc, val) => acc.concat(val), []);
 
   // Generate Competitive Landscape
   const competitiveLandscape: CompetitiveLandscape[] = industries.map((industry) => {
-    return organizations[industry].map((organization) => {
+    const years = [2018, 2019, 2020, 2021, 2022, 2023];
+    
+    // Create year-based entries for each industry
+    const yearEntries = years.map(year => ({
+      industry,
+      year,
+      competitiveIntensity: 40 + (year - 2018) * 5 + generateRandomNumber(-5, 5),
+      experientialFocus: 30 + (year - 2018) * 8 + generateRandomNumber(-8, 8),
+      commodityFocus: 70 - (year - 2018) * 8 + generateRandomNumber(-8, 8),
+      organizationCount: organizations[industry].length
+    }));
+    
+    // Create organization-specific entries
+    const orgEntries = organizations[industry].map((organization) => {
       const marketShare = generateRandomNumber(1, 25);
       return ["Customer Satisfaction", "Product Quality", "Pricing", "Innovation"].map((metric) => ({
         industry,
         organization,
         metric,
         score: generateRandomNumber(60, 95),
-        marketShare
+        marketShare,
+        year: 2023
       }));
     }).reduce((acc, val) => acc.concat(val), []);
+    
+    return [...yearEntries, ...orgEntries];
   }).reduce((acc, val) => acc.concat(val), []);
 
   // Generate Financial Impact
@@ -273,7 +317,7 @@ export const getAllData = () => {
   };
 };
 
-export const generateCompetitiveLandscape = (industry: string) => {
+export const generateCompetitiveLandscape = (industry: string = "Telecom") => {
   const data = getAllData();
   return data.competitiveLandscape.filter(item => item.industry === industry);
 };

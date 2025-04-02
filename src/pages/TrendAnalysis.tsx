@@ -21,15 +21,13 @@ import { generateCompetitiveLandscape } from '@/services/mockData';
 
 const TrendAnalysis = () => {
   const data = getAllData();
-  const competitiveLandscape = generateCompetitiveLandscape();
-
   const [selectedIndustry, setSelectedIndustry] = useState(data.industries[0]);
   
-  const years = [...new Set(competitiveLandscape.map(item => item.year))].sort();
+  const competitiveLandscape = generateCompetitiveLandscape(selectedIndustry);
   
-  const industryTrends = competitiveLandscape.filter(item => 
-    item.industry === selectedIndustry
-  ).sort((a, b) => a.year - b.year);
+  const industryTrends = competitiveLandscape
+    .filter(item => item.year && typeof item.year === 'number')
+    .sort((a, b) => (a.year || 0) - (b.year || 0));
 
   const cxIndexTrend = data.industries.map(industry => {
     const industryData = data.cxIndexData.filter(item => item.industry === industry);

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,13 +7,16 @@ import { PieChart as PieChartIcon, BarChart2, TrendingUp, Target, Shield } from 
 import CXIndexSummary from '@/components/CXIndexSummary';
 import CompetitiveLandscape from '@/components/CompetitiveLandscape';
 import CorrelationAnalysis from '@/components/CorrelationAnalysis';
-import { getAllData } from '@/services/mockData';
+import { getAllData, generateCompetitiveLandscape } from '@/services/mockData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label, ReferenceLine } from 'recharts';
 
 const CompetitiveData = () => {
   const data = getAllData();
   const [selectedIndustry, setSelectedIndustry] = useState(data.industries[0]);
+  
+  // Get competitive landscape data for the selected industry
+  const competitiveLandscape = generateCompetitiveLandscape(selectedIndustry);
   
   return (
     <DashboardLayout>
@@ -45,7 +49,7 @@ const CompetitiveData = () => {
           
           <TabsContent value="landscape" className="mt-4">
             <CompetitiveLandscape 
-              data={data.competitiveLandscape}
+              data={competitiveLandscape}
               industries={data.industries}
             />
           </TabsContent>

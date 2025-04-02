@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +13,11 @@ import CompetitiveIntensityChart from '@/components/charts/CompetitiveIntensityC
 
 const IndustryTrendAnalysis = () => {
   const data = getAllData();
-  const competitiveLandscape = generateCompetitiveLandscape();
   const [selectedIndustry, setSelectedIndustry] = useState(data.industries[0]);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Pass the selectedIndustry to the function
+  const competitiveLandscape = generateCompetitiveLandscape(selectedIndustry);
   
   // Calculate industry metrics
   const cxIndexTrend = data.industries.map(industry => {
@@ -35,6 +38,26 @@ const IndustryTrendAnalysis = () => {
   });
   
   const selectedIndustryTrend = cxIndexTrend.find(item => item.industry === selectedIndustry);
+  
+  // Filter landscape data to just get the entries with year data for the charts
+  const industryFocusData = competitiveLandscape
+    .filter(item => item.year && typeof item.year === 'number' && 
+      item.experientialFocus !== undefined && 
+      item.commodityFocus !== undefined)
+    .map(item => ({
+      year: item.year || 0,
+      experientialFocus: item.experientialFocus || 0,
+      commodityFocus: item.commodityFocus || 0
+    }));
+  
+  const competitiveIntensityData = competitiveLandscape
+    .filter(item => item.year && typeof item.year === 'number' && 
+      item.competitiveIntensity !== undefined)
+    .map(item => ({
+      year: item.year || 0,
+      competitiveIntensity: item.competitiveIntensity || 0,
+      experientialFocus: item.experientialFocus || 0
+    }));
   
   return (
     <DashboardLayout>
@@ -198,9 +221,7 @@ const IndustryTrendAnalysis = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="h-[300px]">
-                    <IndustryFocusChart 
-                      data={competitiveLandscape.filter(item => item.industry === selectedIndustry)}
-                    />
+                    <IndustryFocusChart data={industryFocusData} />
                   </div>
                 </CardContent>
               </Card>
@@ -215,9 +236,7 @@ const IndustryTrendAnalysis = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="h-[300px]">
-                    <CompetitiveIntensityChart 
-                      data={competitiveLandscape.filter(item => item.industry === selectedIndustry)}
-                    />
+                    <CompetitiveIntensityChart data={competitiveIntensityData} />
                   </div>
                 </CardContent>
               </Card>
