@@ -6,7 +6,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import IndustryOverview from './IndustryOverview';
 import IndustryStatCards from './IndustryStatCards';
 import IndustryCharts from './IndustryCharts';
-import IndustryFactors from './IndustryFactors';
 
 interface IndustryAnalysisTabProps {
   data: any;
@@ -73,7 +72,7 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
             Industry Analysis
           </h2>
           <p className="text-muted-foreground">
-            Analyze industry competition, CX trends, and factor importance
+            Analyze industry CX trends and performance
           </p>
         </div>
         
@@ -95,7 +94,6 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
         <TabsList className="mb-4">
           <TabsTrigger value="overview">Industry Overview</TabsTrigger>
           <TabsTrigger value="trends">Trend Analysis</TabsTrigger>
-          <TabsTrigger value="factors">CX Factors</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -115,11 +113,6 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
             competitiveLandscape={competitiveLandscape} 
             selectedIndustry={selectedIndustry} 
           />
-        </TabsContent>
-
-        {/* CX Factors Tab */}
-        <TabsContent value="factors">
-          <IndustryFactors data={data} />
         </TabsContent>
       </Tabs>
     </div>
