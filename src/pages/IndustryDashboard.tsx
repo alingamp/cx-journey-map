@@ -2,16 +2,33 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building } from 'lucide-react';
+import { Building, Info } from 'lucide-react';
 import { getAllData, generateCompetitiveLandscape } from '@/services/mockData';
 import SummaryCards from '@/components/dashboard/SummaryCards';
 import TelecomCompaniesSummary from '@/components/dashboard/TelecomCompaniesSummary';
 import ComparisonGraphs from '@/components/dashboard/ComparisonGraphs';
+import { useToast } from '@/hooks/use-toast';
 
 const IndustryDashboard = () => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedIndustry, setSelectedIndustry] = useState<string>("Telecom");
+  const { toast } = useToast();
+  
+  // Handle industry selection attempts
+  const handleIndustryChange = (value: string) => {
+    if (value !== "Telecom") {
+      toast({
+        title: "Demo Limitation",
+        description: "This is a demo focusing on the Telecom industry only",
+        variant: "default",
+        duration: 5000,
+        icon: <Info className="h-5 w-5 text-blue-500" />
+      });
+      return;
+    }
+    setSelectedIndustry(value);
+  };
   
   useEffect(() => {
     // Simulate loading data from API
@@ -109,13 +126,20 @@ const IndustryDashboard = () => {
         </div>
         
         <div className="w-full lg:w-72">
-          <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
+          <Select value={selectedIndustry} onValueChange={handleIndustryChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select Industry" />
             </SelectTrigger>
             <SelectContent>
               {data.industries.map((industry: string) => (
-                <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                <SelectItem 
+                  key={industry} 
+                  value={industry}
+                  disabled={industry !== "Telecom"}
+                  className={industry !== "Telecom" ? "text-muted-foreground italic" : ""}
+                >
+                  {industry} {industry !== "Telecom" && "(demo only)"}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

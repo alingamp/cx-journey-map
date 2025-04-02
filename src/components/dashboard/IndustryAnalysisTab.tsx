@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
-import { Building } from 'lucide-react';
+import { Building, Info } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import IndustryOverview from './IndustryOverview';
 import IndustryStatCards from './IndustryStatCards';
 import IndustryCharts from './IndustryCharts';
 import IndustryFactors from './IndustryFactors';
+import { useToast } from '@/hooks/use-toast';
 
 interface IndustryAnalysisTabProps {
   data: any;
@@ -16,6 +18,22 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
   const [selectedIndustry, setSelectedIndustry] = useState<string>("Telecom");
   const [industryTab, setIndustryTab] = useState<string>('overview');
   const [historicalDataReady, setHistoricalDataReady] = useState<boolean>(false);
+  const { toast } = useToast();
+
+  // Handle industry selection attempts
+  const handleIndustryChange = (value: string) => {
+    if (value !== "Telecom") {
+      toast({
+        title: "Demo Limitation",
+        description: "This is a demo focusing on the Telecom industry only",
+        variant: "default",
+        duration: 5000,
+        icon: <Info className="h-5 w-5 text-blue-500" />
+      });
+      return;
+    }
+    setSelectedIndustry(value);
+  };
 
   const cxIndexTrend = data.industries.map((industry: string) => {
     const industryData = data.cxIndexData.filter((item: any) => item.industry === industry);
@@ -59,8 +77,6 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
     }
   }, [data]);
 
-  const isSelectable = (industry: string) => industry === "Telecom";
-
   return (
     <div className="pt-4 mt-0 animate-fade-in">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
@@ -75,7 +91,7 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
         </div>
         
         <div className="w-full lg:w-72">
-          <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
+          <Select value={selectedIndustry} onValueChange={handleIndustryChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select Industry" />
             </SelectTrigger>
@@ -84,10 +100,10 @@ const IndustryAnalysisTab: React.FC<IndustryAnalysisTabProps> = ({ data, competi
                 <SelectItem 
                   key={industry} 
                   value={industry} 
-                  disabled={!isSelectable(industry)}
-                  className={!isSelectable(industry) ? "text-muted-foreground italic" : ""}
+                  disabled={industry !== "Telecom"}
+                  className={industry !== "Telecom" ? "text-muted-foreground italic" : ""}
                 >
-                  {industry} {!isSelectable(industry) && "(example only)"}
+                  {industry} {industry !== "Telecom" && "(demo only)"}
                 </SelectItem>
               ))}
             </SelectContent>
