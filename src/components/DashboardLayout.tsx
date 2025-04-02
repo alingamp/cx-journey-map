@@ -49,7 +49,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               onClick={() => navigate('/industry-dashboard')}
               className="flex items-center text-gray-900 font-semibold text-lg"
             >
-              <TrendingUp className="h-6 w-6 mr-2 text-blue-600" />
+              <img src="/lovable-uploads/595a4b26-38bd-4307-ae2c-039da252e8f5.png" alt="OW CX Index Logo" className="h-6 w-auto mr-2" />
               OW CX Index
             </button>
           </div>
