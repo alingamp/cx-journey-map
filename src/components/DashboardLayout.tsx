@@ -7,7 +7,6 @@ import {
   LineChart, Building, TrendingUp,
   Menu, X, ArrowLeft
 } from 'lucide-react';
-import QueryBar from './QueryBar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -129,9 +128,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
         {/* Main content */}
         <main className="flex-1 lg:pl-64">
-          <div className="lg:hidden">
-            <QueryBar />
-          </div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
             {location.pathname !== '/industry-dashboard' && (
               <button 
