@@ -1,4 +1,3 @@
-
 // Types for customer survey data
 export interface CustomerSurvey {
   id: string;
@@ -125,7 +124,7 @@ export const generateCustomerSurveys = (count: number, industries: string[], org
 
 // Get all survey data
 export const getCustomerSurveys = (industries: string[], organizations: {[key: string]: string[]}): CustomerSurvey[] => {
-  return generateCustomerSurveys(150, industries, organizations);
+  return generateCustomerSurveys(300, industries, organizations);
 };
 
 // Calculate aggregated survey statistics

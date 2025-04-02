@@ -18,7 +18,7 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({ surveys, onVi
   const [page, setPage] = useState(0);
   const [selectedType, setSelectedType] = useState<string>('all-types');
   const [selectedChannel, setSelectedChannel] = useState<string>('all-channels');
-  const surveysPerPage = 10;
+  const surveysPerPage = 20; // Increased from 10 to 20
   
   // Filter surveys based on search query and type
   const filteredSurveys = surveys.filter(survey => {

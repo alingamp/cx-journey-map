@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -30,7 +29,7 @@ const Performance = () => {
       
       // Load survey data
       const surveyData = getCustomerSurveys(mockData.industries, mockData.organizations);
-      // Filter to only AT&T surveys for this demo
+      // Filter to only AT&T surveys for this demo, but get more of them
       const attSurveys = surveyData.filter(survey => survey.organization === "AT&T");
       setSurveys(attSurveys);
       
@@ -323,24 +322,6 @@ const Performance = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-1">Average Satisfaction</p>
-                  <p className="text-3xl font-bold">7.3/10</p>
-                  <p className="text-xs text-gray-500 mt-1">+0.4 pts vs last quarter</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-1">Direct Feedback Index</p>
-                  <p className="text-3xl font-bold">74.5/100</p>
-                  <p className="text-xs text-gray-500 mt-1">Based on all survey responses</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-1">Expectation Gap</p>
-                  <p className="text-3xl font-bold">+0.8</p>
-                  <p className="text-xs text-gray-500 mt-1">Customer expectations exceeded</p>
-                </div>
-              </div>
-              
               <div className="mb-8">
                 <h3 className="text-lg font-medium mb-4">Customer Experience Dimensions</h3>
                 <SurveyDimensionsChart data={surveyDimensionsData} />
