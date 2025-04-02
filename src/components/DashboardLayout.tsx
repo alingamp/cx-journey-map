@@ -50,7 +50,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               className="flex items-center text-gray-900 font-semibold text-lg"
             >
               <TrendingUp className="h-6 w-6 mr-2 text-blue-600" />
-              CX Analytics
+              OW CX Index
             </button>
           </div>
           <div className="w-6">
@@ -93,8 +93,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="flex flex-col flex-1">
             <div className="flex items-center flex-shrink-0 px-4">
               <Link to="/industry-dashboard" className="flex items-center">
-                <TrendingUp className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-semibold">CX Analytics</span>
+                <img src="/lovable-uploads/595a4b26-38bd-4307-ae2c-039da252e8f5.png" alt="OW CX Index Logo" className="h-8 w-auto" />
+                <span className="ml-2 text-xl font-semibold">OW CX Index</span>
               </Link>
             </div>
             <nav className="mt-8 flex-1 flex flex-col overflow-y-auto">

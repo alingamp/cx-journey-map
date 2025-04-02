@@ -32,7 +32,7 @@ const PerformanceHeader: React.FC<PerformanceHeaderProps> = ({
             <Building className="h-6 w-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight animate-fade-in">Organization Performance Dashboard</h1>
+            <h1 className="text-2xl font-bold tracking-tight animate-fade-in">OW CX Index Performance Dashboard</h1>
             <p className="text-gray-500 animate-fade-in" style={{ animationDelay: '100ms' }}>
               View detailed performance metrics and analytics
             </p>

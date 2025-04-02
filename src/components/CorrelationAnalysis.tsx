@@ -33,7 +33,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         <p className="font-medium">{payload[0].payload.organization}</p>
         <p className="text-gray-600">{payload[0].payload.industry}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-1">
-          <p>CX Index:</p>
+          <p>OW CX Index:</p>
           <p className="font-medium">{payload[0].payload.cxIndex}</p>
           <p>{payload[0].payload.financialMetric}:</p>
           <p className="font-medium">{payload[0].payload.value}%</p>
@@ -119,7 +119,7 @@ const CorrelationAnalysis: React.FC<CorrelationAnalysisProps> = ({ data, industr
             Correlation Analysis
           </CardTitle>
           <CardDescription>
-            Relationship between CX scores and financial metrics
+            Relationship between OW CX Index scores and financial metrics
           </CardDescription>
         </div>
         <div className="flex mt-2 gap-2">
@@ -162,11 +162,11 @@ const CorrelationAnalysis: React.FC<CorrelationAnalysisProps> = ({ data, industr
               <XAxis 
                 type="number" 
                 dataKey="cxIndex" 
-                name="CX Index" 
+                name="OW CX Index" 
                 domain={[60, 100]}
                 tick={{ fontSize: 12 }}
               >
-                <Label value="CX Index Score" offset={-10} position="insideBottom" fontSize={12} />
+                <Label value="OW CX Index Score" offset={-10} position="insideBottom" fontSize={12} />
               </XAxis>
               <YAxis 
                 type="number" 
@@ -194,12 +194,12 @@ const CorrelationAnalysis: React.FC<CorrelationAnalysisProps> = ({ data, industr
           {chartData.length > 0 && (
             <p className="text-xs text-gray-600">
               {selectedMetric === 'Customer Retention' ? 
-                `Organizations with higher CX scores generally show better customer retention rates, particularly in the ${chartData[0]?.industry || 'selected'} industry.` :
+                `Organizations with higher OW CX Index scores generally show better customer retention rates, particularly in the ${chartData[0]?.industry || 'selected'} industry.` :
               selectedMetric === 'Revenue Growth' ?
-                `There appears to be a correlation between CX investment and revenue growth, with potential for significant returns.` :
+                `There appears to be a correlation between OW CX Index investment and revenue growth, with potential for significant returns.` :
               selectedMetric === 'Customer Acquisition Cost' ?
-                `Better customer experience tends to correlate with lower acquisition costs, creating efficiency.` :
-                `The data suggests further investment in CX could yield positive returns in ${selectedMetric}.`
+                `Better customer experience measured by OW CX Index tends to correlate with lower acquisition costs, creating efficiency.` :
+                `The data suggests further investment in OW CX Index could yield positive returns in ${selectedMetric}.`
               }
             </p>
           )}

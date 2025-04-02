@@ -99,7 +99,7 @@ const IndustryDashboard = () => {
   return (
     <DashboardLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight animate-fade-in">Industry Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight animate-fade-in">OW CX Index Dashboard</h1>
         <p className="text-gray-500 mt-1 animate-fade-in" style={{ animationDelay: '100ms' }}>
           Comprehensive industry analysis and competitive insights
         </p>
