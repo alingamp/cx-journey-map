@@ -1,645 +1,437 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendingUp, BarChart4, Activity, Target, User, Users, LineChart } from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  Cell,
-  LabelList,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar
-} from 'recharts';
-import CXIndexSummary from '@/components/CXIndexSummary';
-import FinancialImpact from '@/components/FinancialImpact';
-import FeedbackDiagnostics from '@/components/FeedbackDiagnostics';
-import ExperienceImpact from '@/components/ExperienceImpact';
-import PassiveMetrics from '@/components/PassiveMetrics';
-import CompetitiveIntensityChart from '@/components/charts/CompetitiveIntensityChart';
 import { getAllData } from '@/services/mockData';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { Building, TrendingUp, Star, MessageCircle, BarChart as BarChartIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const Performance = () => {
-  const navigate = useNavigate();
-  // Using useMemo for data to prevent re-calculation on every render
-  const data = useMemo(() => getAllData(), []);
-  const [selectedIndustry, setSelectedIndustry] = useState(data.industries[0]);
-  const [selectedOrganization, setSelectedOrganization] = useState('');
-  const [activeTab, setActiveTab] = useState('overview');
-  const [orgData, setOrgData] = useState<any>(null);
-  const [competitorData, setCompetitorData] = useState<any[]>([]);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   
-  // Set the first organization when industry changes - combine with useEffect below
   useEffect(() => {
-    if (data.organizations[selectedIndustry] && data.organizations[selectedIndustry].length > 0) {
-      const firstOrg = data.organizations[selectedIndustry][0];
-      setSelectedOrganization(firstOrg);
-      
-      // Find data for the selected organization
-      const selectedOrgData = data.cxIndexData.find(item => 
-        item.industry === selectedIndustry && 
-        item.organization === firstOrg
-      );
-      
-      if (selectedOrgData) {
-        setOrgData(selectedOrgData);
-        
-        // Get competitor data (other organizations in the same industry)
-        const competitors = data.cxIndexData
-          .filter(item => 
-            item.industry === selectedIndustry && 
-            item.organization !== firstOrg
-          )
-          .sort((a, b) => b.cxIndex - a.cxIndex);
-        
-        setCompetitorData(competitors);
-      }
-    }
-  }, [selectedIndustry, data.organizations, data.cxIndexData]);
+    // Simulate loading data from API
+    setTimeout(() => {
+      const mockData = getAllData();
+      setData(mockData);
+      setLoading(false);
+    }, 600);
+  }, []);
   
-  // Update data when organization selection changes - but only when it's not being set by the industry change
-  useEffect(() => {
-    if (!selectedOrganization || 
-        // Skip if this is the same as the first org in this industry (already handled above)
-        (data.organizations[selectedIndustry]?.[0] === selectedOrganization && orgData)) {
-      return;
-    }
-    
-    // Find organization data
-    const selectedOrgData = data.cxIndexData.find(item => 
-      item.industry === selectedIndustry && 
-      item.organization === selectedOrganization
-    );
-    
-    if (selectedOrgData) {
-      setOrgData(selectedOrgData);
-      
-      // Get competitor data (other organizations in the same industry)
-      const competitors = data.cxIndexData
-        .filter(item => 
-          item.industry === selectedIndustry && 
-          item.organization !== selectedOrganization
-        )
-        .sort((a, b) => b.cxIndex - a.cxIndex);
-      
-      setCompetitorData(competitors);
-    }
-  }, [selectedOrganization, selectedIndustry, data.cxIndexData, data.organizations, orgData]);
-  
-  // Memoized calculation of industry average
-  const industryAverage = useMemo(() => {
-    const industryOrgs = data.cxIndexData.filter(item => item.industry === selectedIndustry);
-    return industryOrgs.reduce((acc, item) => acc + item.cxIndex, 0) / industryOrgs.length;
-  }, [selectedIndustry, data.cxIndexData]);
-  
-  // Memoized calculation of organization rank
-  const orgRank = useMemo(() => {
-    if (!orgData) return 'N/A';
-    
-    const industryOrgs = data.cxIndexData
-      .filter(item => item.industry === selectedIndustry)
-      .sort((a, b) => b.cxIndex - a.cxIndex);
-    
-    const rank = industryOrgs.findIndex(item => item.organization === selectedOrganization) + 1;
-    return `${rank} of ${industryOrgs.length}`;
-  }, [selectedIndustry, selectedOrganization, orgData, data.cxIndexData]);
-
-  // Navigate to customer insights for this organization
-  const navigateToCustomerInsights = () => {
-    navigate('/customer-insights', { 
-      state: { 
-        selectedIndustry, 
-        selectedOrganization 
-      } 
-    });
-  };
-
-  // Prepare radar chart data
-  const radarChartData = useMemo(() => {
-    if (!selectedOrganization || !selectedIndustry) return [];
-    
-    const feedbackItem = data.feedbackDiagnostics.find(item => 
-      item.industry === selectedIndustry && 
-      item.organization === selectedOrganization
-    );
-    
-    if (!feedbackItem) return [];
-    
-    return data.cxDimensions.map(dim => ({
-      dimension: dim,
-      value: feedbackItem[dim]
-    }));
-  }, [selectedIndustry, selectedOrganization, data.feedbackDiagnostics, data.cxDimensions]);
-
-  // Memoize the organization comparison data
-  const orgComparisonData = useMemo(() => {
-    if (!orgData) return [];
-    
-    return [
-      {
-        organization: selectedOrganization,
-        cxIndex: orgData.cxIndex,
-        isSelected: true
-      },
-      ...competitorData.slice(0, 5).map(comp => ({
-        ...comp,
-        isSelected: false
-      }))
-    ];
-  }, [orgData, selectedOrganization, competitorData]);
-
-  // Memoize the YoY improvement data
-  const yoyImprovementData = useMemo(() => {
-    if (!orgData) return [];
-    
-    return [
-      {
-        organization: selectedOrganization,
-        change: parseFloat((orgData.cxIndex - orgData.lastYearIndex).toFixed(1)),
-        isSelected: true
-      },
-      ...competitorData.slice(0, 5).map(comp => ({
-        organization: comp.organization,
-        change: parseFloat((comp.cxIndex - comp.lastYearIndex).toFixed(1)),
-        isSelected: false
-      }))
-    ];
-  }, [orgData, selectedOrganization, competitorData]);
-
-  // Memoize the dimension gap analysis data
-  const dimensionGapData = useMemo(() => {
-    if (competitorData.length === 0) return [];
-    
-    return data.cxDimensions.map(dim => {
-      const orgFeedback = data.feedbackDiagnostics.find(
-        f => f.organization === selectedOrganization && f.industry === selectedIndustry
-      );
-      
-      const topCompetitorFeedback = data.feedbackDiagnostics.find(
-        f => f.organization === competitorData[0]?.organization && f.industry === selectedIndustry
-      );
-      
-      const orgScore = orgFeedback ? orgFeedback[dim] : 0;
-      const topScore = topCompetitorFeedback ? topCompetitorFeedback[dim] : 0;
-      
-      return {
-        dimension: dim,
-        gap: parseFloat((orgScore - topScore).toFixed(1))
-      };
-    });
-  }, [data.cxDimensions, selectedOrganization, selectedIndustry, competitorData, data.feedbackDiagnostics]);
-
-  // Memoize the gap analysis cells to prevent re-renders
-  const gapAnalysisCells = useMemo(() => {
-    if (competitorData.length === 0) return [];
-    
-    return data.cxDimensions.map((dim) => {
-      const orgScore = data.feedbackDiagnostics.find(
-        f => f.organization === selectedOrganization && f.industry === selectedIndustry
-      )?.[dim] || 0;
-      
-      const topScore = data.feedbackDiagnostics.find(
-        f => f.organization === competitorData[0]?.organization && f.industry === selectedIndustry
-      )?.[dim] || 0;
-      
-      return (
-        <Cell 
-          key={`cell-${dim}`} 
-          fill={orgScore > topScore ? '#10b981' : '#ef4444'} 
-        />
-      );
-    });
-  }, [data.cxDimensions, selectedOrganization, selectedIndustry, competitorData, data.feedbackDiagnostics]);
-
-  // Memoize the competitor bar cells
-  const competitorBarCells = useMemo(() => {
-    if (!orgData) return [];
-    
-    return orgComparisonData.map((entry, index) => (
-      <Cell 
-        key={`cell-${index}`} 
-        fill={entry.organization === selectedOrganization ? '#10b981' : '#3b82f6'} 
-      />
-    ));
-  }, [orgData, orgComparisonData, selectedOrganization]);
-  
-  // Don't render if there's no data yet
-  if (!orgData) {
+  if (loading || !data) {
     return (
       <DashboardLayout>
-        <div className="flex justify-center items-center h-[50vh]">
+        <div className="h-full w-full flex items-center justify-center">
           <div className="text-center">
             <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin mx-auto mb-4"></div>
-            <h3 className="text-lg font-medium text-gray-900">Loading data</h3>
+            <h3 className="text-lg font-medium text-gray-900">Loading organization data</h3>
+            <p className="text-gray-500 mt-1">Please wait while we prepare AT&T insights</p>
           </div>
         </div>
       </DashboardLayout>
     );
   }
   
+  // Find AT&T data from the CX Index data
+  const attData = data.cxIndexData.find((item: any) => 
+    item.organization === "AT&T" && item.industry === "Telecom"
+  );
+  
   return (
     <DashboardLayout>
-      <div className="space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+            <Building className="h-6 w-6 text-blue-600" />
+          </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <User className="h-8 w-8 text-primary" />
-              Organization Dashboard
-            </h1>
-            <p className="text-muted-foreground">
-              Comprehensive CX performance for a specific organization
+            <h1 className="text-3xl font-bold tracking-tight animate-fade-in">AT&T</h1>
+            <p className="text-gray-500 animate-fade-in" style={{ animationDelay: '100ms' }}>
+              Organization Performance Dashboard
             </p>
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-            <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Select Industry" />
-              </SelectTrigger>
-              <SelectContent>
-                {data.industries.map(industry => (
-                  <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Select 
-              value={selectedOrganization} 
-              onValueChange={setSelectedOrganization}
-              disabled={!selectedIndustry}
-            >
-              <SelectTrigger className="w-full sm:w-[220px]">
-                <SelectValue placeholder="Select Organization" />
-              </SelectTrigger>
-              <SelectContent>
-                {selectedIndustry && data.organizations[selectedIndustry]?.map(org => (
-                  <SelectItem key={org} value={org}>{org}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">CX Index Score</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {orgData.cxIndex}
-              </div>
-              <div className="flex items-center mt-1">
-                <span className={`text-xs ${orgData.cxIndex > orgData.lastYearIndex ? 'text-green-500' : 'text-red-500'} flex items-center`}>
-                  {orgData.cxIndex > orgData.lastYearIndex ? '↑' : '↓'} 
-                  {Math.abs(orgData.cxIndex - orgData.lastYearIndex).toFixed(1)} points
-                </span>
-                <span className="text-xs text-muted-foreground ml-2">vs last year</span>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Industry Rank</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {orgRank}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                In {selectedIndustry}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">vs Industry Average</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {(orgData.cxIndex - industryAverage).toFixed(1)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Industry avg: {industryAverage.toFixed(1)}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Customer Insights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[60px] flex flex-col justify-between">
-                <p className="text-xs text-muted-foreground">
-                  View detailed customer survey data
-                </p>
-                <Button 
-                  onClick={navigateToCustomerInsights}
-                  className="w-full mt-2"
-                  size="sm"
-                >
-                  Explore Insights
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="competitors">Competitors</TabsTrigger>
-            <TabsTrigger value="feedback">Feedback</TabsTrigger>
-            <TabsTrigger value="financial">Financial</TabsTrigger>
-          </TabsList>
-          
-          {/* Tab content wrapper with key to force recreation on tab change */}
-          <div key={activeTab}>
-            <TabsContent value="overview" className="mt-4 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Radar chart of all dimensions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Dimension Performance</CardTitle>
-                    <CardDescription>
-                      {selectedOrganization}'s performance across all CX dimensions
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RadarChart 
-                          cx="50%" 
-                          cy="50%" 
-                          outerRadius="80%" 
-                          data={radarChartData}
-                        >
-                          <PolarGrid stroke="#e5e7eb" />
-                          <PolarAngleAxis dataKey="dimension" />
-                          <PolarRadiusAxis angle={90} domain={[0, 100]} />
-                          <Radar
-                            name={selectedOrganization}
-                            dataKey="value"
-                            stroke="#3b82f6"
-                            fill="#3b82f6"
-                            fillOpacity={0.4}
-                          />
-                          <Tooltip formatter={(value) => [value, 'Score']} />
-                        </RadarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* Passive metrics */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Passive Metrics</CardTitle>
-                    <CardDescription>
-                      Engagement data from non-survey sources
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[300px]">
-                      {selectedOrganization && (
-                        <PassiveMetrics 
-                          data={data.passiveMetrics}
-                          industries={[selectedIndustry]}
-                          organizations={{ [selectedIndustry]: [selectedOrganization] }}
-                        />
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Historical data */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Competitive Intensity Trend</CardTitle>
-                  <CardDescription>
-                    Industry competitive landscape over time
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[300px]">
-                    <CompetitiveIntensityChart 
-                      data={data.competitiveLandscape.filter(item => item.industry === selectedIndustry)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="competitors" className="mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Competitor Comparison</CardTitle>
-                  <CardDescription>
-                    {selectedOrganization}'s CX performance vs. competitors in {selectedIndustry}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[400px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        layout="vertical"
-                        data={orgComparisonData}
-                        margin={{
-                          top: 5, right: 30, left: 80, bottom: 5,
-                        }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                        <XAxis type="number" domain={[50, 100]} />
-                        <YAxis 
-                          dataKey="organization" 
-                          type="category" 
-                          tick={{ fontSize: 12 }}
-                          width={80}
-                        />
-                        <Tooltip 
-                          formatter={(value: number) => [`${value}`, 'CX Index']}
-                        />
-                        <Bar dataKey="cxIndex" fill="#3b82f6" radius={[0, 4, 4, 0]}>
-                          <LabelList dataKey="cxIndex" position="right" formatter={(v: number) => v.toFixed(1)} />
-                          {competitorBarCells}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>YoY Improvement</CardTitle>
-                    <CardDescription>
-                      How organizations have improved year over year
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          layout="vertical"
-                          data={yoyImprovementData}
-                          margin={{
-                            top: 5, right: 30, left: 80, bottom: 5,
-                          }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                          <XAxis 
-                            type="number" 
-                            domain={[-10, 10]} 
-                            tickFormatter={(value) => `${value > 0 ? '+' : ''}${value}`}
-                          />
-                          <YAxis 
-                            dataKey="organization" 
-                            type="category" 
-                            tick={{ fontSize: 12 }}
-                            width={80}
-                          />
-                          <Tooltip 
-                            formatter={(value: number) => [`${value > 0 ? '+' : ''}${value}`, 'Change']}
-                          />
-                          <Bar dataKey="change" radius={[0, 4, 4, 0]}>
-                            <LabelList dataKey="change" position="right" formatter={(v: number) => `${v > 0 ? '+' : ''}${v}`} />
-                            {yoyImprovementData.map((entry) => (
-                              <Cell 
-                                key={`cell-${entry.organization}`} 
-                                fill={entry.change > 0 ? '#10b981' : '#ef4444'} 
-                              />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Dimension Gap Analysis</CardTitle>
-                    <CardDescription>
-                      Gap between your organization and top performer
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[300px]">
-                      {competitorData.length > 0 && (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            layout="vertical"
-                            data={dimensionGapData}
-                            margin={{
-                              top: 5, right: 30, left: 80, bottom: 5,
-                            }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                            <XAxis 
-                              type="number" 
-                              domain={[-15, 15]} 
-                              tickFormatter={(value) => `${value > 0 ? '+' : ''}${value}`}
-                            />
-                            <YAxis 
-                              dataKey="dimension" 
-                              type="category" 
-                              tick={{ fontSize: 12 }}
-                              width={80}
-                            />
-                            <Tooltip 
-                              formatter={(value: number) => [`${value > 0 ? '+' : ''}${value}`, 'Gap']}
-                              labelFormatter={(value) => `${value} gap`}
-                            />
-                            <Bar dataKey="gap" radius={[0, 4, 4, 0]}>
-                              <LabelList dataKey="gap" position="right" formatter={(v: number) => `${v > 0 ? '+' : ''}${v}`} />
-                              {gapAnalysisCells}
-                            </Bar>
-                          </BarChart>
-                        </ResponsiveContainer>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="feedback" className="mt-4 space-y-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Direct Feedback Diagnostics</CardTitle>
-                    <CardDescription>
-                      Customer feedback across dimensions
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <FeedbackDiagnostics 
-                      data={data.feedbackDiagnostics.filter(item => 
-                        item.industry === selectedIndustry
-                      )}
-                      industries={[selectedIndustry]}
-                      organizations={{ [selectedIndustry]: [selectedOrganization] }}
-                      dimensions={data.cxDimensions}
-                      defaultOrg={selectedOrganization}
-                    />
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Experience Impact</CardTitle>
-                    <CardDescription>
-                      Gap between incoming and outgoing expectations
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <ExperienceImpact 
-                      data={data.experienceImpact.filter(item => 
-                        item.industry === selectedIndustry && 
-                        item.organization === selectedOrganization
-                      )}
-                      industries={[selectedIndustry]}
-                      organizations={{ [selectedIndustry]: [selectedOrganization] }}
-                      dimensions={data.cxDimensions}
-                      defaultOrg={selectedOrganization}
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="financial" className="mt-4">
-              <FinancialImpact 
-                data={data.financialImpact.filter(item => 
-                  item.industry === selectedIndustry
-                )}
-                industries={[selectedIndustry]}
-                organizations={{ [selectedIndustry]: [selectedOrganization] }}
-                selectedIndustry={selectedIndustry}
-                defaultOrg={selectedOrganization}
-              />
-            </TabsContent>
-          </div>
-        </Tabs>
       </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">CX Index</p>
+                <p className="text-3xl font-bold">{attData ? attData.cxIndex.toFixed(1) : 'N/A'}</p>
+              </div>
+              <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+                <BarChartIcon size={20} />
+              </div>
+            </div>
+            <div className="flex items-center mt-2">
+              <Badge variant={attData && attData.isImproving ? "success" : "destructive"} className="flex items-center gap-1">
+                <TrendingUp size={14} />
+                {attData ? (attData.cxIndex - attData.lastYearIndex).toFixed(1) : 'N/A'}
+              </Badge>
+              <span className="text-xs text-gray-500 ml-2">vs. last year</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Industry Rank</p>
+                <p className="text-3xl font-bold">{attData ? `#${attData.rank}` : 'N/A'}</p>
+              </div>
+              <div className="p-2 bg-green-100 rounded-full text-green-600">
+                <Building size={20} />
+              </div>
+            </div>
+            <div className="mt-2">
+              <span className="text-xs text-gray-500">of {data.organizations["Telecom"].length} telecom companies</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Customer Sentiment</p>
+                <p className="text-3xl font-bold">73.4</p>
+              </div>
+              <div className="p-2 bg-amber-100 rounded-full text-amber-600">
+                <Star size={20} />
+              </div>
+            </div>
+            <div className="flex items-center mt-2">
+              <Badge variant="success" className="flex items-center gap-1">
+                <TrendingUp size={14} />
+                +2.1
+              </Badge>
+              <span className="text-xs text-gray-500 ml-2">30 day trend</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Tabs defaultValue="overview" className="mb-6">
+        <TabsList>
+          <TabsTrigger value="overview">Performance Overview</TabsTrigger>
+          <TabsTrigger value="surveys">Customer Surveys</TabsTrigger>
+          <TabsTrigger value="passive">Passive Metrics</TabsTrigger>
+        </TabsList>
+        
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-5 pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Trends</CardTitle>
+              <CardDescription>Key metrics over the past year</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={[
+                      { month: 'Jan', cxScore: 72.1, marketShare: 35.2, customerSat: 68.3 },
+                      { month: 'Feb', cxScore: 72.6, marketShare: 35.3, customerSat: 68.9 },
+                      { month: 'Mar', cxScore: 73.0, marketShare: 35.5, customerSat: 69.5 },
+                      { month: 'Apr', cxScore: 72.8, marketShare: 35.4, customerSat: 70.2 },
+                      { month: 'May', cxScore: 73.4, marketShare: 35.7, customerSat: 71.0 },
+                      { month: 'Jun', cxScore: 74.1, marketShare: 36.0, customerSat: 72.3 },
+                      { month: 'Jul', cxScore: 74.5, marketShare: 36.2, customerSat: 72.8 },
+                      { month: 'Aug', cxScore: 74.8, marketShare: 36.4, customerSat: 73.1 },
+                      { month: 'Sep', cxScore: 75.2, marketShare: 36.5, customerSat: 73.5 },
+                      { month: 'Oct', cxScore: 75.5, marketShare: 36.8, customerSat: 74.0 },
+                      { month: 'Nov', cxScore: 75.9, marketShare: 37.0, customerSat: 74.6 },
+                      { month: 'Dec', cxScore: 76.3, marketShare: 37.3, customerSat: 75.2 },
+                    ]}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="cxScore" stroke="#4f46e5" strokeWidth={2} dot={{ r: 4 }} name="CX Score" />
+                    <Line type="monotone" dataKey="marketShare" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} name="Market Share %" />
+                    <Line type="monotone" dataKey="customerSat" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} name="Customer Satisfaction" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Card>
+              <CardHeader>
+                <CardTitle>CX Factor Strength</CardTitle>
+                <CardDescription>AT&T performance by CX dimension</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={data.cxDimensions.map((dim: string) => ({
+                        dimension: dim,
+                        score: 40 + Math.random() * 45
+                      }))}
+                      margin={{ top: 10, right: 30, left: 80, bottom: 10 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                      <XAxis type="number" domain={[0, 100]} />
+                      <YAxis dataKey="dimension" type="category" width={70} />
+                      <Tooltip 
+                        formatter={(value: number) => [`${value.toFixed(1)}`, 'Score']}
+                        labelFormatter={(value) => `${value} Performance`}
+                      />
+                      <Bar dataKey="score" fill="#4f46e5" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Competitive Comparison</CardTitle>
+                <CardDescription>AT&T vs. top telecom competitors</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={[
+                        { name: 'Overall CX', att: 76.3, verizon: 79.1, tmobile: 77.5 },
+                        { name: 'Network Reliability', att: 82.1, verizon: 85.3, tmobile: 78.9 },
+                        { name: 'Customer Service', att: 71.5, verizon: 69.8, tmobile: 74.2 },
+                        { name: 'Value', att: 68.7, verizon: 65.3, tmobile: 75.6 },
+                        { name: 'Innovation', att: 73.9, verizon: 77.2, tmobile: 78.8 },
+                      ]}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="att" name="AT&T" fill="#4f46e5" />
+                      <Bar dataKey="verizon" name="Verizon" fill="#10b981" />
+                      <Bar dataKey="tmobile" name="T-Mobile" fill="#f59e0b" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        {/* Customer Surveys Tab */}
+        <TabsContent value="surveys" className="pt-4">
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5 text-primary" />
+                Customer Survey Analytics
+              </CardTitle>
+              <CardDescription>
+                Analysis of customer feedback from surveys and direct responses
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500 mb-1">Overall NPS</p>
+                  <p className="text-3xl font-bold">+24</p>
+                  <p className="text-xs text-gray-500 mt-1">+3 pts vs last quarter</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500 mb-1">CSAT Score</p>
+                  <p className="text-3xl font-bold">3.8/5</p>
+                  <p className="text-xs text-gray-500 mt-1">76% satisfaction rate</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500 mb-1">CES Score</p>
+                  <p className="text-3xl font-bold">5.2/7</p>
+                  <p className="text-xs text-gray-500 mt-1">74% effort score</p>
+                </div>
+              </div>
+              
+              <h3 className="text-lg font-medium mt-8 mb-4">Recent Customer Feedback</h3>
+              
+              <div className="space-y-4">
+                {data.attData.surveys.slice(0, 5).map((survey: any) => (
+                  <div key={survey.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="inline-block px-2 py-1 text-xs rounded bg-primary/10 text-primary mb-2">
+                          {survey.surveyType} - {survey.channel}
+                        </span>
+                        <p className="text-gray-700">{survey.comment}</p>
+                        <p className="text-xs text-gray-500 mt-2">{survey.date} - {survey.region} Region</p>
+                      </div>
+                      <div className="bg-gray-100 px-2 py-1 rounded">
+                        <span className="font-medium">{survey.score}</span>
+                        <span className="text-xs text-gray-500">
+                          {survey.surveyType === 'NPS' ? '/10' : 
+                           survey.surveyType === 'CSAT' ? '/5' : 
+                           survey.surveyType === 'CES' ? '/7' : '/100'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-8">
+                <h3 className="text-lg font-medium mb-4">Survey Results by Channel</h3>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={[
+                        { channel: 'Call Center', nps: 22, csat: 3.6, ces: 5.4 },
+                        { channel: 'In-Store', nps: 28, csat: 4.1, ces: 4.9 },
+                        { channel: 'Website', nps: 21, csat: 3.7, ces: 5.3 },
+                        { channel: 'Mobile App', nps: 31, csat: 4.2, ces: 4.7 },
+                        { channel: 'Chat Support', nps: 19, csat: 3.5, ces: 5.6 },
+                      ]}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="channel" />
+                      <YAxis yAxisId="left" orientation="left" />
+                      <YAxis yAxisId="right" orientation="right" />
+                      <Tooltip />
+                      <Legend />
+                      <Bar yAxisId="left" dataKey="nps" name="NPS Score" fill="#4f46e5" />
+                      <Bar yAxisId="left" dataKey="csat" name="CSAT Score" fill="#10b981" />
+                      <Bar yAxisId="right" dataKey="ces" name="CES Score" fill="#f59e0b" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Passive Metrics Tab */}
+        <TabsContent value="passive" className="pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChartIcon className="h-5 w-5 text-primary" />
+                Passive Feedback Metrics
+              </CardTitle>
+              <CardDescription>
+                Analysis of indirect customer signals from digital channels
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500 mb-1">Social Media Sentiment</p>
+                  <p className="text-3xl font-bold">67.8</p>
+                  <div className="flex items-center mt-1">
+                    <Badge variant="success" className="text-xs">+2.1%</Badge>
+                    <span className="text-xs text-gray-500 ml-2">30 day trend</span>
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500 mb-1">App Store Rating</p>
+                  <p className="text-3xl font-bold">4.1</p>
+                  <div className="flex items-center mt-1">
+                    <Badge variant="success" className="text-xs">+0.3</Badge>
+                    <span className="text-xs text-gray-500 ml-2">vs last quarter</span>
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500 mb-1">Website Engagement</p>
+                  <p className="text-3xl font-bold">6.2m</p>
+                  <div className="flex items-center mt-1">
+                    <Badge variant="success" className="text-xs">+4.5%</Badge>
+                    <span className="text-xs text-gray-500 ml-2">monthly visitors</span>
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500 mb-1">Support Tickets</p>
+                  <p className="text-3xl font-bold">25.3k</p>
+                  <div className="flex items-center mt-1">
+                    <Badge variant="destructive" className="text-xs">+2.7%</Badge>
+                    <span className="text-xs text-gray-500 ml-2">monthly volume</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-8 mb-6">
+                <h3 className="text-lg font-medium mb-4">12-Month Passive Metrics Trends</h3>
+                {data.attData.passiveMetrics.map((metric: any, index: number) => (
+                  <div key={index} className="mb-8">
+                    <h4 className="text-base font-medium mb-2">{metric.name}</h4>
+                    <div className="h-60">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                          data={metric.data}
+                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" />
+                          <YAxis domain={['auto', 'auto']} />
+                          <Tooltip />
+                          <Line 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="#4f46e5" 
+                            strokeWidth={2}
+                            dot={{ r: 4 }}
+                            name={metric.name}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-8">
+                <h3 className="text-lg font-medium mb-4">Top Social Media Topics</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { topic: 'Network Coverage', sentiment: 72, volume: 2450, trend: '+3.5%' },
+                    { topic: 'Customer Service', sentiment: 63, volume: 1890, trend: '-1.2%' },
+                    { topic: 'Billing Issues', sentiment: 54, volume: 1560, trend: '+2.7%' },
+                    { topic: 'New 5G Service', sentiment: 81, volume: 1340, trend: '+8.3%' },
+                    { topic: 'Mobile App', sentiment: 76, volume: 980, trend: '+5.1%' },
+                    { topic: 'Pricing Plans', sentiment: 61, volume: 870, trend: '-0.8%' },
+                  ].map((item, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <div className="flex justify-between">
+                        <p className="font-medium">{item.topic}</p>
+                        <Badge variant={parseFloat(item.trend) > 0 ? "success" : "destructive"}>
+                          {item.trend}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between mt-2">
+                        <div>
+                          <p className="text-xs text-gray-500">Sentiment</p>
+                          <p className="font-medium">{item.sentiment}/100</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Volume</p>
+                          <p className="font-medium">{item.volume} mentions</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </DashboardLayout>
   );
 };

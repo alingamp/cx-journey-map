@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, LayoutDashboard, LineChart, TrendingUp, Users, Building } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Building, BarChart, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -16,9 +17,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const location = useLocation();
   
   const navItems = [
-    { icon: LayoutDashboard, label: 'Market & Industry Dashboard', path: '/', active: location.pathname === '/' },
-    { icon: TrendingUp, label: 'Organization Dashboard', path: '/performance', active: location.pathname === '/performance' },
-    { icon: Users, label: 'Customer Insights', path: '/customer-insights', active: location.pathname === '/customer-insights' },
+    { icon: Building, label: 'Industry Dashboard', path: '/', active: location.pathname === '/' },
+    { icon: BarChart, label: 'AT&T Organization Dashboard', path: '/organization', active: location.pathname === '/organization' || location.pathname === '/performance' || location.pathname === '/customer-insights' },
+    { icon: Settings, label: 'Settings', path: '/settings', active: location.pathname === '/settings' },
   ];
 
   if (isMobile) {

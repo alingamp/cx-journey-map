@@ -1,25 +1,24 @@
-
 // Mock data generator for CX dashboard
 
-// Industry types
+// Industry types - now focusing more on Telecom
 export const industries = [
+  "Telecom",
   "Airline",
   "Hotel",
   "Retail Banking",
   "Insurance",
   "Healthcare",
-  "Telecom",
   "Retail/E-commerce"
 ];
 
-// Organizations by industry
+// Organizations by industry - Updated Telecom companies
 export const organizations = {
+  "Telecom": ["AT&T", "Verizon", "T-Mobile", "Comcast", "Rogers", "Bharti Airtel", "Softbank", "China Telecom", "Orange", "Telefonica", "America Movil", "Singtel", "Vodafone", "Telus", "China Mobile", "Deutsche Telekom", "American Tower"],
   "Airline": ["SkyWings", "GlobalAir", "FlightPath", "AeroElite", "BlueSky"],
   "Hotel": ["LuxStay", "ComfortInn", "GrandResort", "RetreatHotels", "UrbanLodge"],
   "Retail Banking": ["FirstBank", "MetroFinance", "CitySavings", "HeritageTrust", "CapitalOne"],
   "Insurance": ["ShieldCover", "TrustGuard", "SecureLife", "ProtectPlus", "SafeHaven"],
   "Healthcare": ["WellnessCare", "LifeClinic", "MedFirst", "HealingHands", "VitalHealth"],
-  "Telecom": ["ConnectNow", "DataLink", "SignalPlus", "CommSphere", "TechWave"],
   "Retail/E-commerce": ["ShopEase", "RetailGiant", "DigitalMart", "BuyNow", "TrendyGoods"]
 };
 
@@ -353,7 +352,7 @@ export const generateFinancialImpact = () => {
 
 // Function to get all data
 export const getAllData = () => {
-  return {
+  const baseData = {
     cxIndexData: generateCXIndexData(),
     industryLoadings: generateIndustryLoadings(),
     feedbackDiagnostics: generateFeedbackDiagnostics(),
@@ -367,9 +366,197 @@ export const getAllData = () => {
     cxDimensions,
     financialMetrics
   };
+  
+  // Generate historical data for each industry
+  baseData.industryHistoricalData = industries.map((industry) => {
+    const years = ['2019', '2020', '2021', '2022', '2023'];
+    // For telecom, create more detailed metrics
+    const metrics = industry === "Telecom" 
+      ? ['Revenue Growth', 'Customer Satisfaction', 'Net Promoter Score', 'Customer Churn', 'ARPU']
+      : ['Revenue', 'Customer Satisfaction', 'Market Share'];
+    
+    return {
+      industry,
+      years,
+      datasets: metrics.map(metric => {
+        // Generate more realistic trend data
+        let baseValue = 50 + Math.random() * 20;
+        return {
+          name: metric,
+          data: years.map((year, i) => {
+            // Create realistic trends based on metric
+            if (metric === 'Customer Satisfaction' || metric === 'Net Promoter Score') {
+              // Slight improvement over time
+              baseValue += Math.random() * 5 - 1;
+            } else if (metric === 'Customer Churn') {
+              // Decreasing is better for churn
+              baseValue -= Math.random() * 3 - 1;
+            } else {
+              // More variable for financial metrics
+              baseValue += Math.random() * 8 - 4;
+            }
+            return parseFloat(baseValue.toFixed(1));
+          })
+        };
+      })
+    };
+  });
+
+  // Create AT&T specific data
+  baseData.attData = {
+    surveys: generateATTSurveyData(),
+    passiveMetrics: generateATTPassiveMetrics()
+  };
+  
+  return baseData;
 };
 
 // Helper for more accurate correlations
 const calculateBaseRetention = (cxIndex: number): number => {
   return (cxIndex - 60) / 20;
+};
+
+// Generate AT&T specific survey data
+const generateATTSurveyData = () => {
+  const surveyTypes = ['NPS', 'CSAT', 'CES', 'Post-Interaction'];
+  const channels = ['Call Center', 'In-Store', 'Website', 'Mobile App', 'Chat Support'];
+  const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
+  const data = [];
+  
+  // Generate 50 sample surveys
+  for (let i = 0; i < 50; i++) {
+    const date = new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000); // Last 180 days
+    const surveyType = surveyTypes[Math.floor(Math.random() * surveyTypes.length)];
+    const channel = channels[Math.floor(Math.random() * channels.length)];
+    const region = regions[Math.floor(Math.random() * regions.length)];
+    
+    // Scores depend on channel and survey type
+    let score;
+    if (surveyType === 'NPS') {
+      score = Math.floor(Math.random() * 11); // 0-10
+      // Adjust scores by channel
+      if (channel === 'Mobile App') score = Math.min(10, score + 2);
+      if (channel === 'Call Center') score = Math.max(0, score - 1);
+    } else if (surveyType === 'CSAT') {
+      score = Math.floor(Math.random() * 5) + 1; // 1-5
+      if (channel === 'In-Store') score = Math.min(5, score + 1);
+    } else if (surveyType === 'CES') {
+      score = Math.floor(Math.random() * 7) + 1; // 1-7
+      if (channel === 'Chat Support') score = Math.max(1, score - 1);
+    } else {
+      score = Math.floor(Math.random() * 100) + 1; // 1-100
+    }
+    
+    data.push({
+      id: i + 1,
+      date: date.toISOString().split('T')[0],
+      surveyType,
+      channel,
+      region,
+      score,
+      comment: generateRandomComment(surveyType, score, channel)
+    });
+  }
+  
+  return data;
+};
+
+// Generate random customer comments based on context
+const generateRandomComment = (surveyType: string, score: number, channel: string) => {
+  const positiveComments = [
+    "Great service, very helpful staff.",
+    "Quick resolution to my problem.",
+    "The app is very easy to use.",
+    "Customer service rep was knowledgeable and friendly.",
+    "Best cellular coverage in my area."
+  ];
+  
+  const neutralComments = [
+    "Service was okay, nothing special.",
+    "Got what I needed, but took longer than expected.",
+    "Coverage is decent in most areas.",
+    "The representative was professional but not very warm.",
+    "Problem got resolved but required multiple attempts."
+  ];
+  
+  const negativeComments = [
+    "Long wait times and unhelpful staff.",
+    "Still having issues with my service.",
+    "The app crashes frequently.",
+    "Poor coverage in my neighborhood.",
+    "Was on hold for over 30 minutes before getting help."
+  ];
+  
+  let commentPool;
+  if (surveyType === 'NPS') {
+    if (score >= 9) commentPool = positiveComments;
+    else if (score >= 7) commentPool = neutralComments;
+    else commentPool = negativeComments;
+  } else if (surveyType === 'CSAT') {
+    if (score >= 4) commentPool = positiveComments;
+    else if (score >= 3) commentPool = neutralComments;
+    else commentPool = negativeComments;
+  } else if (surveyType === 'CES') {
+    if (score <= 2) commentPool = positiveComments;
+    else if (score <= 4) commentPool = neutralComments;
+    else commentPool = negativeComments;
+  } else {
+    if (score >= 80) commentPool = positiveComments;
+    else if (score >= 60) commentPool = neutralComments;
+    else commentPool = negativeComments;
+  }
+  
+  // Add some channel-specific details
+  let comment = commentPool[Math.floor(Math.random() * commentPool.length)];
+  if (channel === 'Mobile App') {
+    comment += " " + ["The app is intuitive.", "Would like more features in the app.", "App needs better stability."][Math.floor(Math.random() * 3)];
+  } else if (channel === 'Call Center') {
+    comment += " " + ["The rep was very knowledgeable.", "Had to be transferred multiple times.", "Wait time was too long."][Math.floor(Math.random() * 3)];
+  } else if (channel === 'In-Store') {
+    comment += " " + ["Store was clean and well-organized.", "Too busy in the store.", "Store staff seemed disinterested."][Math.floor(Math.random() * 3)];
+  }
+  
+  return comment;
+};
+
+// Generate AT&T specific passive metrics data
+const generateATTPassiveMetrics = () => {
+  // Generate 12 months of passive metrics
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const metrics = [
+    { name: 'Social Media Sentiment', baseline: 65 },
+    { name: 'App Store Rating', baseline: 3.8 },
+    { name: 'Website Visit Duration', baseline: 5.2 },
+    { name: 'Call Center Volume', baseline: 142000 },
+    { name: 'Support Ticket Resolution Time', baseline: 24 }
+  ];
+  
+  // Generate data for each metric
+  return metrics.map(metric => {
+    return {
+      name: metric.name,
+      data: months.map((month, index) => {
+        // Create somewhat realistic trend with some seasonality
+        let value = metric.baseline;
+        
+        // Add seasonality effect (lower in summer months for some metrics)
+        if (metric.name === 'Call Center Volume' && (month === 'Jun' || month === 'Jul')) {
+          value *= 0.85;
+        }
+        
+        // Add general improvement trend over time
+        if (metric.name === 'Social Media Sentiment' || metric.name === 'App Store Rating') {
+          value += index * 0.05;
+        }
+        
+        // Add random variation
+        value += (Math.random() - 0.5) * (metric.baseline * 0.1);
+        
+        return {
+          month,
+          value: parseFloat(value.toFixed(2))
+        };
+      })
+    };
+  });
 };
