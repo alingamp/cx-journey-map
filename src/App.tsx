@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Performance from "./pages/Performance";
-import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +19,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/organization" element={<Performance />} />
-          <Route path="/settings" element={<Settings />} />
           {/* Legacy routes for backward compatibility */}
           <Route path="/performance" element={<Performance />} />
           <Route path="/customer-insights" element={<Performance />} />
