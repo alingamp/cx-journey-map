@@ -20,6 +20,7 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
   onViewSurvey 
 }) => {
   const isMobile = useIsMobile();
+  const [showCompetitors, setShowCompetitors] = React.useState(false);
   
   // Data for the spider chart
   const spiderData = [
@@ -31,15 +32,20 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
     { dimension: "Autonomy", ATT: 6.9, Verizon: 7.2, TMobile: 6.7, fullName: "Getting exactly what I want" },
   ];
   
-  // Data for the comparison table
+  // Data for the comparison table with competitor data added
   const comparisonData = [
-    { dimension: "Efficiency", industry: 7.3, att: 7.8, delta: 0.5, fullName: "The fastest and easiest way to complete my task" },
-    { dimension: "Fun", industry: 6.9, att: 6.7, delta: -0.2, fullName: "A fun or enjoyable experience" },
-    { dimension: "Control", industry: 7.2, att: 7.5, delta: 0.3, fullName: "Control over my situation and choices" },
-    { dimension: "Clarity", industry: 7.5, att: 8.2, delta: 0.7, fullName: "Clear and understandable information or assistance" },
-    { dimension: "Learning", industry: 7.3, att: 7.1, delta: -0.2, fullName: "Gathering additional information or learning something new" },
-    { dimension: "Autonomy", industry: 7.1, att: 6.9, delta: -0.2, fullName: "Getting exactly what I want" },
+    { dimension: "Efficiency", industry: 7.3, att: 7.8, delta: 0.5, Verizon: 7.1, TMobile: 6.9, fullName: "The fastest and easiest way to complete my task" },
+    { dimension: "Fun", industry: 6.9, att: 6.7, delta: -0.2, Verizon: 6.3, TMobile: 7.2, fullName: "A fun or enjoyable experience" },
+    { dimension: "Control", industry: 7.2, att: 7.5, delta: 0.3, Verizon: 7.7, TMobile: 6.9, fullName: "Control over my situation and choices" },
+    { dimension: "Clarity", industry: 7.5, att: 8.2, delta: 0.7, Verizon: 7.6, TMobile: 7.0, fullName: "Clear and understandable information or assistance" },
+    { dimension: "Learning", industry: 7.3, att: 7.1, delta: -0.2, Verizon: 6.8, TMobile: 6.5, fullName: "Gathering additional information or learning something new" },
+    { dimension: "Autonomy", industry: 7.1, att: 6.9, delta: -0.2, Verizon: 7.2, TMobile: 6.7, fullName: "Getting exactly what I want" },
   ];
+
+  // Handler for the competitor toggle from SpiderDimensionsChart
+  const handleToggleCompetitors = (isPressed: boolean) => {
+    setShowCompetitors(isPressed);
+  };
 
   return (
     <div className="pt-2 sm:pt-4">
@@ -58,8 +64,14 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
           <div className="mb-8">
             <h3 className="text-base sm:text-lg font-medium mb-4">Customer Experience Dimensions</h3>
             <div className={`grid ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-2 gap-4'}`}>
-              <SpiderDimensionsChart data={spiderData} />
-              <DimensionComparisonTable data={comparisonData} />
+              <SpiderDimensionsChart 
+                data={spiderData} 
+                onToggleCompetitors={handleToggleCompetitors}
+              />
+              <DimensionComparisonTable 
+                data={comparisonData} 
+                showCompetitors={showCompetitors}
+              />
             </div>
           </div>
 

@@ -26,6 +26,7 @@ interface SpiderDimensionData {
 
 interface SpiderDimensionsChartProps {
   data: SpiderDimensionData[];
+  onToggleCompetitors?: (isPressed: boolean) => void;
 }
 
 // Custom tooltip component for the radar chart
@@ -53,12 +54,19 @@ const CustomTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) =
   return null;
 };
 
-const SpiderDimensionsChart: React.FC<SpiderDimensionsChartProps> = ({ data }) => {
+const SpiderDimensionsChart: React.FC<SpiderDimensionsChartProps> = ({ 
+  data, 
+  onToggleCompetitors 
+}) => {
   const [showCompetitors, setShowCompetitors] = useState(false);
   const isMobile = useIsMobile();
 
   const handleToggleCompetitors = () => {
-    setShowCompetitors(!showCompetitors);
+    const newState = !showCompetitors;
+    setShowCompetitors(newState);
+    if (onToggleCompetitors) {
+      onToggleCompetitors(newState);
+    }
   };
 
   const legendHeight = showCompetitors ? (isMobile ? 40 : 30) : (isMobile ? 25 : 20);
