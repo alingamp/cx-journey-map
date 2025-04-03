@@ -49,6 +49,15 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
   const experienceTypes = Array.from(new Set(surveys.map(s => s.experience.type)));
   const channels = Array.from(new Set(surveys.map(s => s.experience.channel)));
   
+  // Function to get shortened experience type for display
+  const getShortenedExperienceType = (type: string) => {
+    if (type.startsWith('I was researching')) return 'Researching';
+    if (type.startsWith('I was purchasing')) return 'Purchasing';
+    if (type.startsWith('I was using')) return 'Using';
+    if (type.startsWith('I was looking for assistance')) return 'Support';
+    return 'Other';
+  };
+  
   return (
     <div>
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
@@ -70,7 +79,7 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
           <SelectContent>
             <SelectItem value="all-types">All Experience Types</SelectItem>
             {experienceTypes.map(type => (
-              <SelectItem key={type} value={type}>{type}</SelectItem>
+              <SelectItem key={type} value={type}>{getShortenedExperienceType(type)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -116,7 +125,11 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>{survey.experience.type}</TableCell>
+                <TableCell>
+                  <span title={survey.experience.type}>
+                    {getShortenedExperienceType(survey.experience.type)}
+                  </span>
+                </TableCell>
                 <TableCell>{survey.experience.channel}</TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1">

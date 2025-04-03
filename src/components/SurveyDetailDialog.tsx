@@ -106,10 +106,10 @@ const SurveyDetailDialog = ({
               <MessageSquare className="h-4 w-4" /> Experience Details
             </h3>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <p className="text-sm font-medium">Type of Experience</p>
-                <p className="text-sm">{survey.experience.type}</p>
+                <p className="text-sm break-words">{survey.experience.type}</p>
               </div>
               
               <div>
@@ -117,17 +117,19 @@ const SurveyDetailDialog = ({
                 <p className="text-sm">{survey.experience.channel}</p>
               </div>
               
-              <div>
-                <p className="text-sm font-medium">Initial Expectation</p>
-                <p className="text-sm">{survey.experience.ingoingExpectation}/10</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium">Initial Expectation</p>
+                  <p className="text-sm">{survey.experience.ingoingExpectation}/10</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium">Importance of Good Experience</p>
+                  <p className="text-sm">{survey.experience.importanceOfGoodExperience}/10</p>
+                </div>
               </div>
               
               <div>
-                <p className="text-sm font-medium">Importance of Good Experience</p>
-                <p className="text-sm">{survey.experience.importanceOfGoodExperience}/10</p>
-              </div>
-              
-              <div className="col-span-2">
                 <p className="text-sm font-medium">Desired Elements</p>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {survey.experience.desiredElements.map((element, index) => (

@@ -1,3 +1,4 @@
+
 // Types for customer survey data
 export interface CustomerSurvey {
   id: string;
@@ -8,7 +9,11 @@ export interface CustomerSurvey {
     hasRecentExperience: boolean;
   };
   experience: {
-    type: 'Purchase' | 'Servicing' | 'Usage';
+    type: 'I was researching their products/services' | 
+          'I was purchasing one of their products/services' | 
+          'I was using a product/service of theirs' | 
+          'I was looking for assistance with one of their products/services' | 
+          'Other';
     channel: 'Digital' | 'Phone' | 'In-person';
     ingoingExpectation: number; // 1-10 scale
     importanceOfGoodExperience: number; // 1-10 scale
@@ -55,6 +60,14 @@ const generateRandomName = (): string => {
 // Function to generate random customer survey data
 export const generateCustomerSurveys = (count: number, industries: string[], organizations: {[key: string]: string[]}): CustomerSurvey[] => {
   const surveys: CustomerSurvey[] = [];
+  
+  const experienceTypes = [
+    'I was researching their products/services',
+    'I was purchasing one of their products/services',
+    'I was using a product/service of theirs',
+    'I was looking for assistance with one of their products/services',
+    'Other'
+  ];
 
   for (let i = 0; i < count; i++) {
     const industry = industries[Math.floor(Math.random() * industries.length)];
@@ -101,7 +114,7 @@ export const generateCustomerSurveys = (count: number, industries: string[], org
         hasRecentExperience: Math.random() > 0.05, // 95% have recent experience
       },
       experience: {
-        type: ['Purchase', 'Servicing', 'Usage'][Math.floor(Math.random() * 3)] as any,
+        type: experienceTypes[Math.floor(Math.random() * experienceTypes.length)] as any,
         channel: ['Digital', 'Phone', 'In-person'][Math.floor(Math.random() * 3)] as any,
         ingoingExpectation: ingoingExpectation,
         importanceOfGoodExperience: Math.floor(Math.random() * 3) + 7, // 7-10
