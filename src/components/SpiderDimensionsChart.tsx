@@ -65,12 +65,12 @@ const SpiderDimensionsChart: React.FC<SpiderDimensionsChartProps> = ({ data }) =
   const chartHeight = isMobile ? 300 : 400;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="h-full">
+      <CardHeader className="pb-2">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <div>
-            <CardTitle>Customer Experience Dimensions</CardTitle>
-            <CardDescription>How customers feel across key experience dimensions</CardDescription>
+            <CardTitle className="text-lg">Experience Dimensions</CardTitle>
+            <CardDescription>How customers feel across dimensions</CardDescription>
           </div>
           <Toggle 
             pressed={showCompetitors} 
@@ -82,7 +82,7 @@ const SpiderDimensionsChart: React.FC<SpiderDimensionsChartProps> = ({ data }) =
           </Toggle>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-2 pt-0">
         <div className={`h-[${chartHeight}px]`}>
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
@@ -141,17 +141,6 @@ const SpiderDimensionsChart: React.FC<SpiderDimensionsChartProps> = ({ data }) =
               />
             </RadarChart>
           </ResponsiveContainer>
-        </div>
-        
-        <div className="mt-4 text-xs text-gray-500">
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            {data.map(item => (
-              <div key={item.dimension} className="flex items-center">
-                <span className="font-medium">{item.dimension}:</span>
-                <span className="ml-1">{item.fullName}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </CardContent>
     </Card>
