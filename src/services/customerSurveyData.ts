@@ -1,4 +1,3 @@
-
 // Types for customer survey data
 export interface CustomerSurvey {
   id: string;
@@ -33,17 +32,22 @@ export interface CustomerSurvey {
 // Generate random customer survey data
 const EVALUATION_ELEMENTS = [
   'Efficiency',
-  'Convenience',
-  'Personalization',
-  'Trust/Confidence',
-  'Emotional Connection',
-  'Problem Resolution',
-  'Product Quality',
-  'Value Perception',
-  'Clarity of Information',
-  'Staff Knowledge',
-  'Follow-up Care'
+  'Fun',
+  'Control',
+  'Clarity',
+  'Learning',
+  'Autonomy'
 ];
+
+// Descriptions for each evaluation element
+export const EVALUATION_DESCRIPTIONS = {
+  'Efficiency': 'The fastest and easiest way to complete my task',
+  'Fun': 'A fun or enjoyable experience',
+  'Control': 'Control over my situation and choices',
+  'Clarity': 'Clear and understandable information or assistance',
+  'Learning': 'Gathering additional information or learning about something new',
+  'Autonomy': 'Getting exactly what I want'
+};
 
 const generateRandomName = (): string => {
   const firstNames = ['James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael', 'Linda', 'William', 'Elizabeth', 

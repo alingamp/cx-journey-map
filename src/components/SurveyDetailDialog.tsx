@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CustomerSurvey } from '@/services/customerSurveyData';
+import { CustomerSurvey, EVALUATION_DESCRIPTIONS } from '@/services/customerSurveyData';
 import {
   Dialog,
   DialogContent,
@@ -22,8 +22,10 @@ import {
   Tablet,
   Computer,
   MapPin,
-  PhoneCall
+  PhoneCall,
+  Info
 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SurveyDetailDialogProps {
   survey: CustomerSurvey | null;
@@ -181,7 +183,19 @@ const SurveyDetailDialog = ({
               {Object.entries(survey.evaluation).map(([element, score], index) => (
                 <div key={index} className="mb-3">
                   <div className="flex justify-between text-sm mb-1">
-                    <span>{element}</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="flex items-center gap-1">
+                            {element}
+                            <Info className="h-3 w-3 text-muted-foreground" />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{EVALUATION_DESCRIPTIONS[element as keyof typeof EVALUATION_DESCRIPTIONS]}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <span className="font-medium">{score}/10</span>
                   </div>
                   <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
