@@ -8,7 +8,6 @@ import SpiderDimensionsChart from '@/components/SpiderDimensionsChart';
 import DimensionComparisonTable from '@/components/DimensionComparisonTable';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Separator } from '@/components/ui/separator';
-import SurveyDimensionsChart from '@/components/SurveyDimensionsChart';
 
 interface CustomerSurveysTabProps {
   surveys: CustomerSurvey[];
@@ -101,11 +100,6 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
             )}
           </div>
 
-          {/* Survey dimensions bar chart */}
-          <div className="mb-8">
-            <SurveyDimensionsChart data={surveyDimensionsData} />
-          </div>
-
           <div className="mt-6 sm:mt-8">
             <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Individual Survey Responses</h3>
             <div className="overflow-x-auto -mx-4 sm:mx-0">
@@ -113,6 +107,7 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
                 <SurveyResponseTable 
                   surveys={surveys} 
                   onViewSurvey={onViewSurvey} 
+                  surveysPerPage={30}
                 />
               </div>
             </div>

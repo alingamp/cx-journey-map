@@ -20,16 +20,6 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface SurveyResponseTableProps {
   surveys: CustomerSurvey[];
@@ -40,7 +30,7 @@ interface SurveyResponseTableProps {
 const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({ 
   surveys, 
   onViewSurvey,
-  surveysPerPage = 10 // Changed default to 10 per page
+  surveysPerPage = 20 // Default to 20 if not specified
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(0);
@@ -98,261 +88,9 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
         return null;
     }
   };
-
-  // Calculate survey metrics summary
-  const calculateSurveyMetricsSummary = () => {
-    if (filteredSurveys.length === 0) return null;
-    
-    // Age groups
-    const ageGroups = {
-      '18-24': 0, '25-34': 0, '35-44': 0, '45-54': 0, '55-64': 0, '65+': 0
-    };
-    
-    // Gender distribution
-    const genderCounts: {[key: string]: number} = {};
-    
-    // Experience type distribution
-    const typeCounts: {[key: string]: number} = {};
-    
-    // Channel distribution
-    const channelCounts: {[key: string]: number} = {};
-    
-    // Expectations
-    let expectationsMet = 0;
-    let expectationsExceeded = 0;
-    let expectationsNotMet = 0;
-    
-    filteredSurveys.forEach(survey => {
-      // Age distribution
-      const age = survey.demographics.age;
-      if (age < 25) ageGroups['18-24']++;
-      else if (age < 35) ageGroups['25-34']++;
-      else if (age < 45) ageGroups['35-44']++;
-      else if (age < 55) ageGroups['45-54']++;
-      else if (age < 65) ageGroups['55-64']++;
-      else ageGroups['65+']++;
-      
-      // Gender counts
-      const gender = survey.demographics.gender;
-      genderCounts[gender] = (genderCounts[gender] || 0) + 1;
-      
-      // Experience type counts
-      const type = getShortenedExperienceType(survey.experience.type);
-      typeCounts[type] = (typeCounts[type] || 0) + 1;
-      
-      // Channel counts
-      const channel = survey.experience.channel;
-      channelCounts[channel] = (channelCounts[channel] || 0) + 1;
-      
-      // Expectation outcomes
-      if (survey.impact.outgoingExpectation > survey.experience.ingoingExpectation) {
-        expectationsExceeded++;
-      } else if (survey.impact.outgoingExpectation < survey.experience.ingoingExpectation) {
-        expectationsNotMet++;
-      } else {
-        expectationsMet++;
-      }
-    });
-    
-    return {
-      totalSurveys: filteredSurveys.length,
-      ageGroups,
-      genderCounts,
-      typeCounts,
-      channelCounts,
-      expectations: {
-        met: expectationsMet,
-        exceeded: expectationsExceeded,
-        notMet: expectationsNotMet
-      }
-    };
-  };
-  
-  const metricsSummary = calculateSurveyMetricsSummary();
-  
-  // Generate pagination links
-  const generatePaginationLinks = () => {
-    const pageLinks = [];
-    const maxVisiblePages = 5; // Max pages to show in pagination
-    
-    if (totalPages <= maxVisiblePages) {
-      // Show all pages if total is less than max visible
-      for (let i = 0; i < totalPages; i++) {
-        pageLinks.push(
-          <PaginationItem key={i}>
-            <PaginationLink 
-              onClick={() => setPage(i)}
-              isActive={page === i}
-            >
-              {i + 1}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      }
-    } else {
-      // Show first page
-      pageLinks.push(
-        <PaginationItem key={0}>
-          <PaginationLink 
-            onClick={() => setPage(0)}
-            isActive={page === 0}
-          >
-            1
-          </PaginationLink>
-        </PaginationItem>
-      );
-      
-      // Add ellipsis if current page is not near the beginning
-      if (page > 2) {
-        pageLinks.push(
-          <PaginationItem key="ellipsis-1">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-      
-      // Add pages around current page
-      const startPage = Math.max(1, Math.min(page - 1, totalPages - 4));
-      const endPage = Math.min(startPage + 2, totalPages - 1);
-      
-      for (let i = startPage; i <= endPage; i++) {
-        if (i === 0 || i === totalPages - 1) continue; // Skip first and last page as they're added separately
-        pageLinks.push(
-          <PaginationItem key={i}>
-            <PaginationLink 
-              onClick={() => setPage(i)}
-              isActive={page === i}
-            >
-              {i + 1}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      }
-      
-      // Add ellipsis if current page is not near the end
-      if (page < totalPages - 3) {
-        pageLinks.push(
-          <PaginationItem key="ellipsis-2">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-      
-      // Show last page
-      pageLinks.push(
-        <PaginationItem key={totalPages - 1}>
-          <PaginationLink 
-            onClick={() => setPage(totalPages - 1)}
-            isActive={page === totalPages - 1}
-          >
-            {totalPages}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
-    
-    return pageLinks;
-  };
   
   return (
     <div>
-      {/* Survey Metrics Summary */}
-      {metricsSummary && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-base">Survey Metrics Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-              {/* Demographics */}
-              <div>
-                <h4 className="font-medium mb-2">Demographics</h4>
-                <div className="space-y-1">
-                  <div className="flex justify-between">
-                    <span>Total Responses:</span>
-                    <span className="font-medium">{metricsSummary.totalSurveys}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-2 mb-1">Age Groups:</div>
-                  {Object.entries(metricsSummary.ageGroups)
-                    .filter(([_, count]) => count > 0)
-                    .map(([range, count]) => (
-                      <div key={range} className="flex justify-between">
-                        <span>{range}:</span>
-                        <span>{count} ({((count / metricsSummary.totalSurveys) * 100).toFixed(0)}%)</span>
-                      </div>
-                    ))
-                  }
-                </div>
-              </div>
-              
-              {/* Gender Distribution */}
-              <div>
-                <h4 className="font-medium mb-2">Gender Distribution</h4>
-                <div className="space-y-1">
-                  {Object.entries(metricsSummary.genderCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([gender, count]) => (
-                      <div key={gender} className="flex justify-between">
-                        <span>{gender}:</span>
-                        <span>{count} ({((count / metricsSummary.totalSurveys) * 100).toFixed(0)}%)</span>
-                      </div>
-                    ))
-                  }
-                </div>
-              </div>
-              
-              {/* Experience Types */}
-              <div>
-                <h4 className="font-medium mb-2">Experience Types</h4>
-                <div className="space-y-1">
-                  {Object.entries(metricsSummary.typeCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([type, count]) => (
-                      <div key={type} className="flex justify-between">
-                        <span>{type}:</span>
-                        <span>{count} ({((count / metricsSummary.totalSurveys) * 100).toFixed(0)}%)</span>
-                      </div>
-                    ))
-                  }
-                </div>
-              </div>
-              
-              {/* Channels & Expectations */}
-              <div>
-                <h4 className="font-medium mb-2">Channels & Expectations</h4>
-                <div className="space-y-1">
-                  {Object.entries(metricsSummary.channelCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([channel, count]) => (
-                      <div key={channel} className="flex justify-between">
-                        <span className="flex items-center">{getChannelIcon(channel)}{channel}:</span>
-                        <span>{count} ({((count / metricsSummary.totalSurveys) * 100).toFixed(0)}%)</span>
-                      </div>
-                    ))
-                  }
-                  
-                  <div className="border-t mt-2 pt-2">
-                    <div className="text-xs text-muted-foreground mb-1">Expectations:</div>
-                    <div className="flex justify-between">
-                      <span className="text-green-600">Exceeded:</span>
-                      <span>{metricsSummary.expectations.exceeded} ({((metricsSummary.expectations.exceeded / metricsSummary.totalSurveys) * 100).toFixed(0)}%)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-amber-600">Met:</span>
-                      <span>{metricsSummary.expectations.met} ({((metricsSummary.expectations.met / metricsSummary.totalSurveys) * 100).toFixed(0)}%)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-red-600">Not Met:</span>
-                      <span>{metricsSummary.expectations.notMet} ({((metricsSummary.expectations.notMet / metricsSummary.totalSurveys) * 100).toFixed(0)}%)</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -478,31 +216,31 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
         </Table>
       </div>
       
-      {/* Modern Pagination */}
+      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage(Math.max(0, page - 1))}
-                  className={page === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-                />
-              </PaginationItem>
-              
-              {generatePaginationLinks()}
-              
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-                  className={page === totalPages - 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+        <div className="flex items-center justify-between mt-4">
+          <div className="text-sm text-muted-foreground">
+            Showing <span className="font-medium">{page * surveysPerPage + 1}</span> to <span className="font-medium">{Math.min((page + 1) * surveysPerPage, filteredSurveys.length)}</span> of <span className="font-medium">{filteredSurveys.length}</span> results
+          </div>
           
-          <div className="text-sm text-center text-muted-foreground mt-2">
-            Showing {page * surveysPerPage + 1} to {Math.min((page + 1) * surveysPerPage, filteredSurveys.length)} of {filteredSurveys.length} results
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(Math.max(0, page - 1))}
+              disabled={page === 0}
+            >
+              Previous
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+              disabled={page === totalPages - 1}
+            >
+              Next
+            </Button>
           </div>
         </div>
       )}
