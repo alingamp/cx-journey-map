@@ -7,6 +7,7 @@ import { CustomerSurvey } from '@/services/customerSurveyData';
 import SpiderDimensionsChart from '@/components/SpiderDimensionsChart';
 import DimensionComparisonTable from '@/components/DimensionComparisonTable';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Separator } from '@/components/ui/separator';
 
 interface CustomerSurveysTabProps {
   surveys: CustomerSurvey[];
@@ -63,16 +64,40 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
           {/* Experience Dimensions Visualization */}
           <div className="mb-8">
             <h3 className="text-base sm:text-lg font-medium mb-4">Customer Experience Dimensions</h3>
-            <div className={`grid ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-2 gap-4'}`}>
-              <SpiderDimensionsChart 
-                data={spiderData} 
-                onToggleCompetitors={handleToggleCompetitors}
-              />
-              <DimensionComparisonTable 
-                data={comparisonData} 
-                showCompetitors={showCompetitors}
-              />
-            </div>
+            
+            {isMobile ? (
+              // Mobile view: stacked layout
+              <div className="grid grid-cols-1 gap-6">
+                <SpiderDimensionsChart 
+                  data={spiderData} 
+                  onToggleCompetitors={handleToggleCompetitors}
+                />
+                <DimensionComparisonTable 
+                  data={comparisonData} 
+                  showCompetitors={showCompetitors}
+                />
+              </div>
+            ) : (
+              // Desktop view: connected cards layout
+              <div className="border rounded-lg overflow-hidden">
+                <div className="grid grid-cols-2">
+                  <div className="p-3 border-r">
+                    <SpiderDimensionsChart 
+                      data={spiderData} 
+                      onToggleCompetitors={handleToggleCompetitors}
+                      connected={true}
+                    />
+                  </div>
+                  <div className="p-3">
+                    <DimensionComparisonTable 
+                      data={comparisonData} 
+                      showCompetitors={showCompetitors}
+                      connected={true}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-6 sm:mt-8">
