@@ -4,7 +4,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { CustomerSurvey } from '@/services/customerSurveyData';
 import { Badge } from '@/components/ui/badge';
-import { ChevronUp, ChevronDown, Search, User, CalendarDays, Building, MessageSquare } from 'lucide-react';
+import { 
+  ChevronUp, 
+  ChevronDown, 
+  Search, 
+  User, 
+  CalendarDays, 
+  Building, 
+  MessageSquare,
+  Smartphone,
+  Tablet,
+  Computer,
+  MapPin,
+  PhoneCall
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -56,6 +69,24 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
     if (type.startsWith('I was using')) return 'Using';
     if (type.startsWith('I was looking for assistance')) return 'Support';
     return 'Other';
+  };
+  
+  // Function to get channel icon
+  const getChannelIcon = (channel: string) => {
+    switch (channel) {
+      case 'On a phone':
+        return <Smartphone className="h-3 w-3 text-muted-foreground mr-1" />;
+      case 'On a tablet':
+        return <Tablet className="h-3 w-3 text-muted-foreground mr-1" />;
+      case 'On a computer':
+        return <Computer className="h-3 w-3 text-muted-foreground mr-1" />;
+      case 'In-person':
+        return <MapPin className="h-3 w-3 text-muted-foreground mr-1" />;
+      case 'Over the phone':
+        return <PhoneCall className="h-3 w-3 text-muted-foreground mr-1" />;
+      default:
+        return null;
+    }
   };
   
   return (
@@ -130,7 +161,12 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
                     {getShortenedExperienceType(survey.experience.type)}
                   </span>
                 </TableCell>
-                <TableCell>{survey.experience.channel}</TableCell>
+                <TableCell>
+                  <div className="flex items-center">
+                    {getChannelIcon(survey.experience.channel)}
+                    <span>{survey.experience.channel}</span>
+                  </div>
+                </TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1">
                     <div className="text-xs">

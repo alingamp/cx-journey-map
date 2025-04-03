@@ -14,7 +14,7 @@ export interface CustomerSurvey {
           'I was using a product/service of theirs' | 
           'I was looking for assistance with one of their products/services' | 
           'Other';
-    channel: 'Digital' | 'Phone' | 'In-person';
+    channel: 'On a phone' | 'On a tablet' | 'On a computer' | 'In-person' | 'Over the phone' | 'Other';
     ingoingExpectation: number; // 1-10 scale
     importanceOfGoodExperience: number; // 1-10 scale
     desiredElements: string[];
@@ -68,6 +68,15 @@ export const generateCustomerSurveys = (count: number, industries: string[], org
     'I was looking for assistance with one of their products/services',
     'Other'
   ];
+  
+  const channelTypes = [
+    'On a phone',
+    'On a tablet', 
+    'On a computer', 
+    'In-person', 
+    'Over the phone',
+    'Other'
+  ];
 
   for (let i = 0; i < count; i++) {
     const industry = industries[Math.floor(Math.random() * industries.length)];
@@ -115,7 +124,7 @@ export const generateCustomerSurveys = (count: number, industries: string[], org
       },
       experience: {
         type: experienceTypes[Math.floor(Math.random() * experienceTypes.length)] as any,
-        channel: ['Digital', 'Phone', 'In-person'][Math.floor(Math.random() * 3)] as any,
+        channel: channelTypes[Math.floor(Math.random() * channelTypes.length)] as any,
         ingoingExpectation: ingoingExpectation,
         importanceOfGoodExperience: Math.floor(Math.random() * 3) + 7, // 7-10
         desiredElements: desiredElements,

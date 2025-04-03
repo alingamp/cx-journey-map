@@ -17,7 +17,12 @@ import {
   BarChart2,
   X,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Smartphone,
+  Tablet,
+  Computer,
+  MapPin,
+  PhoneCall
 } from 'lucide-react';
 
 interface SurveyDetailDialogProps {
@@ -32,6 +37,24 @@ const SurveyDetailDialog = ({
   onOpenChange 
 }: SurveyDetailDialogProps) => {
   if (!survey) return null;
+  
+  // Choose appropriate channel icon
+  const getChannelIcon = (channel: string) => {
+    switch (channel) {
+      case 'On a phone':
+        return <Smartphone className="h-4 w-4 mr-1" />;
+      case 'On a tablet':
+        return <Tablet className="h-4 w-4 mr-1" />;
+      case 'On a computer':
+        return <Computer className="h-4 w-4 mr-1" />;
+      case 'In-person':
+        return <MapPin className="h-4 w-4 mr-1" />;
+      case 'Over the phone':
+        return <PhoneCall className="h-4 w-4 mr-1" />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,7 +137,10 @@ const SurveyDetailDialog = ({
               
               <div>
                 <p className="text-sm font-medium">Channel</p>
-                <p className="text-sm">{survey.experience.channel}</p>
+                <p className="text-sm flex items-center">
+                  {getChannelIcon(survey.experience.channel)}
+                  {survey.experience.channel}
+                </p>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
