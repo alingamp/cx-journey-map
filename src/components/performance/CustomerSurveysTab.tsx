@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { MessageCircle } from 'lucide-react';
-import SurveyDimensionsChart from '@/components/SurveyDimensionsChart';
 import SurveyResponseTable from '@/components/SurveyResponseTable';
 import { CustomerSurvey } from '@/services/customerSurveyData';
 
@@ -30,15 +29,6 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-6 sm:mb-8">
-            <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Customer Experience Dimensions</h3>
-            <div className="w-full overflow-x-auto">
-              <div className="min-w-[400px] sm:min-w-full">
-                <SurveyDimensionsChart data={surveyDimensionsData} />
-              </div>
-            </div>
-          </div>
-          
           <div className="mt-6 sm:mt-8">
             <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Individual Survey Responses</h3>
             <div className="overflow-x-auto -mx-4 sm:mx-0">
