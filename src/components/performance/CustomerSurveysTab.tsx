@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Users, BarChart, PieChart, Info, ArrowUp, ArrowDown, CircleCheck, CircleX } from 'lucide-react';
 import SurveyResponseTable from '@/components/SurveyResponseTable';
 import { CustomerSurvey } from '@/services/customerSurveyData';
 import SpiderDimensionsChart from '@/components/SpiderDimensionsChart';
@@ -22,6 +22,12 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const [showCompetitors, setShowCompetitors] = React.useState(false);
+  const [filteredSurveys, setFilteredSurveys] = React.useState<CustomerSurvey[]>(surveys);
+  
+  // Function to update filtered surveys (used by SurveyResponseTable)
+  const updateFilteredSurveys = (newFilteredSurveys: CustomerSurvey[]) => {
+    setFilteredSurveys(newFilteredSurveys);
+  };
   
   // Data for the spider chart
   const spiderData = [
@@ -46,6 +52,119 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
   // Handler for the competitor toggle from SpiderDimensionsChart
   const handleToggleCompetitors = (isPressed: boolean) => {
     setShowCompetitors(isPressed);
+  };
+  
+  // Calculate summary metrics from filtered surveys
+  const calculateSummaryMetrics = () => {
+    if (!filteredSurveys.length) return null;
+    
+    // Demographics
+    const genderCounts: Record<string, number> = {};
+    const ageGroups: Record<string, number> = { '18-25': 0, '26-35': 0, '36-45': 0, '46-55': 0, '56+': 0 };
+    const incomeCounts: Record<string, number> = {};
+    
+    // Experience types
+    const experienceTypes: Record<string, number> = {};
+    
+    // Channels
+    const channels: Record<string, number> = {};
+    
+    // Expectations
+    let totalIngoing = 0;
+    let totalOutgoing = 0;
+    let exceededCount = 0;
+    let metCount = 0;
+    let belowCount = 0;
+    
+    // Desired elements
+    const desiredElements: Record<string, number> = {};
+    
+    // Process each survey
+    filteredSurveys.forEach(survey => {
+      // Demographics
+      genderCounts[survey.demographics.gender] = (genderCounts[survey.demographics.gender] || 0) + 1;
+      
+      // Age groups
+      const age = survey.demographics.age;
+      if (age <= 25) ageGroups['18-25']++;
+      else if (age <= 35) ageGroups['26-35']++;
+      else if (age <= 45) ageGroups['36-45']++;
+      else if (age <= 55) ageGroups['46-55']++;
+      else ageGroups['56+']++;
+      
+      // Income
+      incomeCounts[survey.demographics.income] = (incomeCounts[survey.demographics.income] || 0) + 1;
+      
+      // Experience types
+      experienceTypes[survey.experience.type] = (experienceTypes[survey.experience.type] || 0) + 1;
+      
+      // Channels
+      channels[survey.experience.channel] = (channels[survey.experience.channel] || 0) + 1;
+      
+      // Expectations
+      totalIngoing += survey.experience.ingoingExpectation;
+      totalOutgoing += survey.impact.outgoingExpectation;
+      
+      if (survey.impact.outgoingExpectation > survey.experience.ingoingExpectation) {
+        exceededCount++;
+      } else if (survey.impact.outgoingExpectation === survey.experience.ingoingExpectation) {
+        metCount++;
+      } else {
+        belowCount++;
+      }
+      
+      // Desired elements
+      survey.experience.desiredElements.forEach(element => {
+        desiredElements[element] = (desiredElements[element] || 0) + 1;
+      });
+    });
+    
+    // Calculate top values
+    const topGender = Object.entries(genderCounts).sort((a, b) => b[1] - a[1])[0];
+    const topAgeGroup = Object.entries(ageGroups).sort((a, b) => b[1] - a[1])[0];
+    const topExperienceType = Object.entries(experienceTypes).sort((a, b) => b[1] - a[1])[0];
+    const topChannel = Object.entries(channels).sort((a, b) => b[1] - a[1])[0];
+    const topDesiredElement = Object.entries(desiredElements).sort((a, b) => b[1] - a[1])[0];
+    
+    // Calculate averages
+    const avgIngoing = totalIngoing / filteredSurveys.length;
+    const avgOutgoing = totalOutgoing / filteredSurveys.length;
+    const expectationDelta = avgOutgoing - avgIngoing;
+    
+    return {
+      totalSurveys: filteredSurveys.length,
+      demographics: {
+        topGender: topGender ? { gender: topGender[0], percentage: Math.round((topGender[1] / filteredSurveys.length) * 100) } : null,
+        topAgeGroup: topAgeGroup ? { group: topAgeGroup[0], percentage: Math.round((topAgeGroup[1] / filteredSurveys.length) * 100) } : null,
+      },
+      experience: {
+        topType: topExperienceType ? { type: topExperienceType[0], percentage: Math.round((topExperienceType[1] / filteredSurveys.length) * 100) } : null,
+        topChannel: topChannel ? { channel: topChannel[0], percentage: Math.round((topChannel[1] / filteredSurveys.length) * 100) } : null,
+      },
+      expectations: {
+        avgIngoing: avgIngoing.toFixed(1),
+        avgOutgoing: avgOutgoing.toFixed(1),
+        delta: expectationDelta.toFixed(1),
+        exceededPercentage: Math.round((exceededCount / filteredSurveys.length) * 100),
+        metPercentage: Math.round((metCount / filteredSurveys.length) * 100),
+        belowPercentage: Math.round((belowCount / filteredSurveys.length) * 100),
+      },
+      desiredElements: {
+        topElement: topDesiredElement ? { element: topDesiredElement[0], percentage: Math.round((topDesiredElement[1] / filteredSurveys.length) * 100) } : null,
+      }
+    };
+  };
+  
+  // Get summary metrics
+  const summaryMetrics = calculateSummaryMetrics();
+  
+  // Helper function to get shortened experience type for display
+  const getShortenedExperienceType = (type: string) => {
+    if (type.startsWith('I was researching')) return 'Researching';
+    if (type.startsWith('I was purchasing')) return 'Purchasing';
+    if (type.startsWith('I was using')) return 'Using';
+    if (type.startsWith('I was looking for assistance')) return 'Support';
+    return 'Other';
   };
 
   return (
@@ -100,6 +219,127 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
             )}
           </div>
 
+          {/* Summary Metrics */}
+          {summaryMetrics && (
+            <div className="mb-8">
+              <h3 className="text-base sm:text-lg font-medium mb-4">Survey Response Summary</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                {/* Demographics Card */}
+                <div className="border rounded-md p-4">
+                  <div className="flex items-center mb-3">
+                    <Users className="h-5 w-5 mr-2 text-blue-500" />
+                    <h4 className="font-medium">Demographics</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Total Responses:</span>
+                      <span className="font-medium">{summaryMetrics.totalSurveys}</span>
+                    </div>
+                    {summaryMetrics.demographics.topGender && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Top Gender:</span>
+                        <span className="font-medium">{summaryMetrics.demographics.topGender.gender} ({summaryMetrics.demographics.topGender.percentage}%)</span>
+                      </div>
+                    )}
+                    {summaryMetrics.demographics.topAgeGroup && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Top Age Group:</span>
+                        <span className="font-medium">{summaryMetrics.demographics.topAgeGroup.group} ({summaryMetrics.demographics.topAgeGroup.percentage}%)</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Experience Types Card */}
+                <div className="border rounded-md p-4">
+                  <div className="flex items-center mb-3">
+                    <PieChart className="h-5 w-5 mr-2 text-purple-500" />
+                    <h4 className="font-medium">Experience</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    {summaryMetrics.experience.topType && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Top Type:</span>
+                        <span className="font-medium">{getShortenedExperienceType(summaryMetrics.experience.topType.type)} ({summaryMetrics.experience.topType.percentage}%)</span>
+                      </div>
+                    )}
+                    {summaryMetrics.experience.topChannel && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Top Channel:</span>
+                        <span className="font-medium">{summaryMetrics.experience.topChannel.channel} ({summaryMetrics.experience.topChannel.percentage}%)</span>
+                      </div>
+                    )}
+                    {summaryMetrics.desiredElements.topElement && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Top Desired Element:</span>
+                        <span className="font-medium">{summaryMetrics.desiredElements.topElement.element} ({summaryMetrics.desiredElements.topElement.percentage}%)</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Expectations Card */}
+                <div className="border rounded-md p-4">
+                  <div className="flex items-center mb-3">
+                    <BarChart className="h-5 w-5 mr-2 text-green-500" />
+                    <h4 className="font-medium">Expectations</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Average Ingoing:</span>
+                      <span className="font-medium">{summaryMetrics.expectations.avgIngoing}/10</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Average Outgoing:</span>
+                      <span className="font-medium">{summaryMetrics.expectations.avgOutgoing}/10</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Avg. Delta:</span>
+                      <span className={`font-medium flex items-center ${Number(summaryMetrics.expectations.delta) > 0 ? 'text-green-500' : Number(summaryMetrics.expectations.delta) < 0 ? 'text-red-500' : ''}`}>
+                        {Number(summaryMetrics.expectations.delta) > 0 ? (
+                          <ArrowUp className="h-3 w-3 mr-1" />
+                        ) : Number(summaryMetrics.expectations.delta) < 0 ? (
+                          <ArrowDown className="h-3 w-3 mr-1" />
+                        ) : null}
+                        {Number(summaryMetrics.expectations.delta) > 0 ? '+' : ''}{summaryMetrics.expectations.delta}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Satisfaction Card */}
+                <div className="border rounded-md p-4">
+                  <div className="flex items-center mb-3">
+                    <Info className="h-5 w-5 mr-2 text-amber-500" />
+                    <h4 className="font-medium">Satisfaction</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Exceeded:</span>
+                      <span className="font-medium flex items-center text-green-500">
+                        <CircleCheck className="h-3 w-3 mr-1" />
+                        {summaryMetrics.expectations.exceededPercentage}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Met:</span>
+                      <span className="font-medium flex items-center text-amber-500">
+                        {summaryMetrics.expectations.metPercentage}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Below:</span>
+                      <span className="font-medium flex items-center text-red-500">
+                        <CircleX className="h-3 w-3 mr-1" />
+                        {summaryMetrics.expectations.belowPercentage}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="mt-6 sm:mt-8">
             <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Individual Survey Responses</h3>
             <div className="overflow-x-auto -mx-4 sm:mx-0">
@@ -107,7 +347,8 @@ const CustomerSurveysTab: React.FC<CustomerSurveysTabProps> = ({
                 <SurveyResponseTable 
                   surveys={surveys} 
                   onViewSurvey={onViewSurvey} 
-                  surveysPerPage={30}
+                  surveysPerPage={10}
+                  onFilteredSurveysChange={updateFilteredSurveys}
                 />
               </div>
             </div>

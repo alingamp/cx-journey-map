@@ -27,8 +27,10 @@ const Performance = () => {
       
       // Load survey data
       const surveyData = getCustomerSurveys(mockData.industries, mockData.organizations);
-      // Filter to only AT&T surveys for this demo, but get more of them
-      const attSurveys = surveyData.filter(survey => survey.organization === "AT&T");
+      // Filter to only AT&T surveys and limit to 50 for this demo
+      const attSurveys = surveyData
+        .filter(survey => survey.organization === "AT&T")
+        .slice(0, 50);
       setSurveys(attSurveys);
       
       setLoading(false);
@@ -98,12 +100,11 @@ const Performance = () => {
   // Survey dimension data
   const surveyDimensionsData = [
     { dimension: 'Efficiency', score: 7.8 },
-    { dimension: 'Confidence', score: 8.2 },
+    { dimension: 'Fun', score: 6.7 },
+    { dimension: 'Control', score: 7.5 },
+    { dimension: 'Clarity', score: 8.2 },
+    { dimension: 'Learning', score: 7.1 },
     { dimension: 'Autonomy', score: 6.9 },
-    { dimension: 'Resolution', score: 7.5 },
-    { dimension: 'Enjoyment', score: 6.7 },
-    { dimension: 'Beauty', score: 7.3 },
-    { dimension: 'Connection', score: 6.5 },
   ].sort((a, b) => b.score - a.score);
   
   return (

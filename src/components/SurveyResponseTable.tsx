@@ -1,16 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { CustomerSurvey } from '@/services/customerSurveyData';
 import { Badge } from '@/components/ui/badge';
 import { 
-  ChevronUp, 
-  ChevronDown, 
-  Search, 
+  ChevronLeft,
+  ChevronRight,
   User, 
-  CalendarDays, 
-  Building, 
+  Search, 
   MessageSquare,
   Smartphone,
   Tablet,
@@ -25,15 +23,17 @@ interface SurveyResponseTableProps {
   surveys: CustomerSurvey[];
   onViewSurvey: (survey: CustomerSurvey) => void;
   surveysPerPage?: number;
+  onFilteredSurveysChange?: (filteredSurveys: CustomerSurvey[]) => void;
 }
 
 const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({ 
   surveys, 
   onViewSurvey,
-  surveysPerPage = 20 // Default to 20 if not specified
+  surveysPerPage = 20, // Default to 20 if not specified
+  onFilteredSurveysChange
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [page, setPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [selectedType, setSelectedType] = useState<string>('all-types');
   const [selectedChannel, setSelectedChannel] = useState<string>('all-channels');
   
@@ -49,14 +49,22 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
     return matchesSearch && matchesType && matchesChannel;
   });
   
-  // Pagination
-  const paginatedSurveys = filteredSurveys.slice(
-    page * surveysPerPage, 
-    (page + 1) * surveysPerPage
-  );
+  // Inform parent about filtered surveys
+  useEffect(() => {
+    onFilteredSurveysChange?.(filteredSurveys);
+  }, [filteredSurveys, onFilteredSurveysChange]);
   
-  // Total pages
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [searchQuery, selectedType, selectedChannel]);
+  
+  // Pagination
   const totalPages = Math.ceil(filteredSurveys.length / surveysPerPage);
+  const paginatedSurveys = filteredSurveys.slice(
+    currentPage * surveysPerPage, 
+    (currentPage + 1) * surveysPerPage
+  );
 
   // Get unique experience types and channels for filters
   const experienceTypes = Array.from(new Set(surveys.map(s => s.experience.type)));
@@ -87,6 +95,72 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
       default:
         return null;
     }
+  };
+  
+  // Generate page buttons
+  const getPageButtons = () => {
+    const buttons = [];
+    
+    // Always show first page
+    buttons.push(
+      <Button
+        key="first"
+        variant={currentPage === 0 ? "default" : "outline"}
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => setCurrentPage(0)}
+        disabled={currentPage === 0}
+      >
+        1
+      </Button>
+    );
+    
+    // Show ellipsis if needed
+    if (currentPage > 2) {
+      buttons.push(
+        <span key="ellipsis1" className="mx-1">...</span>
+      );
+    }
+    
+    // Show current page and neighbors
+    for (let i = Math.max(1, currentPage); i <= Math.min(currentPage + 1, totalPages - 2); i++) {
+      buttons.push(
+        <Button
+          key={i}
+          variant={currentPage === i ? "default" : "outline"}
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => setCurrentPage(i)}
+        >
+          {i + 1}
+        </Button>
+      );
+    }
+    
+    // Show ellipsis if needed
+    if (currentPage < totalPages - 3) {
+      buttons.push(
+        <span key="ellipsis2" className="mx-1">...</span>
+      );
+    }
+    
+    // Always show last page if there are more than 1 page
+    if (totalPages > 1) {
+      buttons.push(
+        <Button
+          key="last"
+          variant={currentPage === totalPages - 1 ? "default" : "outline"}
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => setCurrentPage(totalPages - 1)}
+          disabled={currentPage === totalPages - 1}
+        >
+          {totalPages}
+        </Button>
+      );
+    }
+    
+    return buttons;
   };
   
   return (
@@ -220,26 +294,34 @@ const SurveyResponseTable: React.FC<SurveyResponseTableProps> = ({
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <div className="text-sm text-muted-foreground">
-            Showing <span className="font-medium">{page * surveysPerPage + 1}</span> to <span className="font-medium">{Math.min((page + 1) * surveysPerPage, filteredSurveys.length)}</span> of <span className="font-medium">{filteredSurveys.length}</span> results
+            Showing <span className="font-medium">{currentPage * surveysPerPage + 1}</span> to <span className="font-medium">{Math.min((currentPage + 1) * surveysPerPage, filteredSurveys.length)}</span> of <span className="font-medium">{filteredSurveys.length}</span> results
           </div>
           
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage(Math.max(0, page - 1))}
-              disabled={page === 0}
+              className="h-8 w-8 p-0"
+              onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+              disabled={currentPage === 0}
             >
-              Previous
+              <span className="sr-only">Previous Page</span>
+              <ChevronLeft className="h-4 w-4" />
             </Button>
+            
+            <div className="flex items-center">
+              {getPageButtons()}
+            </div>
             
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-              disabled={page === totalPages - 1}
+              className="h-8 w-8 p-0"
+              onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+              disabled={currentPage === totalPages - 1 || totalPages === 0}
             >
-              Next
+              <span className="sr-only">Next Page</span>
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
