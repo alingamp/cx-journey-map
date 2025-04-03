@@ -10,8 +10,11 @@ import {
   PolarRadiusAxis, 
   Radar,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Tooltip,
+  TooltipProps
 } from 'recharts';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface SpiderDimensionData {
   dimension: string;
@@ -24,6 +27,31 @@ interface SpiderDimensionData {
 interface SpiderDimensionsChartProps {
   data: SpiderDimensionData[];
 }
+
+// Custom tooltip component for the radar chart
+const CustomTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-3 rounded-md shadow-md border border-gray-200 text-sm">
+        <p className="font-semibold mb-1">{payload[0]?.payload.dimension}</p>
+        {payload.map((entry, index) => (
+          <div key={`tooltip-${index}`} className="flex items-center gap-2">
+            <div 
+              className="w-2 h-2 rounded-full" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="font-medium">{entry.name}:</span>
+            <span>{entry.value}</span>
+          </div>
+        ))}
+        <p className="text-xs text-gray-500 mt-1 max-w-[200px]">
+          {payload[0]?.payload.fullName}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 const SpiderDimensionsChart: React.FC<SpiderDimensionsChartProps> = ({ data }) => {
   const [showCompetitors, setShowCompetitors] = useState(false);
@@ -71,6 +99,8 @@ const SpiderDimensionsChart: React.FC<SpiderDimensionsChartProps> = ({ data }) =
                 tickCount={6}
                 stroke="#e5e7eb"
               />
+              
+              <Tooltip content={<CustomTooltip />} />
               
               <Radar 
                 name="AT&T" 
